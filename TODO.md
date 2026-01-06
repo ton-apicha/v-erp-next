@@ -1,6 +1,6 @@
 # 📝 TODO & Roadmap
 
-## 🎯 Current Status: 60% Complete
+## 🎯 Current Status: 70% Complete
 
 ---
 
@@ -85,6 +85,25 @@
 - [x] Download Documents
 - [x] Document Categories
 - [x] API Routes for Documents
+- [x] Documents Management Page
+
+#### 5. Settings Module (NEW)
+- [x] Settings Page
+- [x] Reset Database Function (with double confirmation)
+- [ ] Profile Settings
+- [ ] Company Settings
+- [ ] Notification Preferences
+
+#### 6. SOS Alerts Module (NEW)
+- [x] SOS Alerts Page
+- [x] Priority-based display
+- [x] Status management UI
+- [ ] Real-time notifications
+
+#### 7. Academy Module (NEW)
+- [x] Academy Placeholder Page
+- [ ] Training Schedule Management
+- [ ] Material Issuance Tracking
 
 ---
 
@@ -302,4 +321,4 @@ See `CONTRIBUTING.md` for details.
 
 ---
 
-Last Updated: 2026-01-05
+Last Updated: 2026-01-06

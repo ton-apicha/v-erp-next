@@ -15,6 +15,7 @@ import {
     Settings,
     ChevronRight,
     LogOut,
+    AlertTriangle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -62,6 +63,7 @@ export default function Sidebar({ user, collapsed = false }: SidebarProps) {
         {
             title: t('others'),
             items: [
+                { href: '/dashboard/sos', label: 'SOS Alerts', icon: AlertTriangle },
                 { href: '/dashboard/documents', label: t('documents'), icon: FileText },
                 { href: '/dashboard/academy', label: t('academy'), icon: GraduationCap },
                 { href: '/dashboard/reports', label: t('reports'), icon: BarChart3 },
@@ -183,7 +185,7 @@ export default function Sidebar({ user, collapsed = false }: SidebarProps) {
                     </form>
                     {!collapsed && (
                         <div className="mt-2 text-center">
-                            <p className="text-[10px] text-muted-foreground/50">v1.1.0</p>
+                            <p className="text-[10px] text-muted-foreground/50">v1.2.0</p>
                         </div>
                     )}
                 </div>

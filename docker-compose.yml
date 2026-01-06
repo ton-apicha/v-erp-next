@@ -53,7 +53,13 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: v-erp-app
-    restart: unless-stopped
+    # restart: unless-stopped # Disabled for dev
+    command: [ "sleep", "infinity" ]
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+      - /app/node_modules
     environment:
       DATABASE_URL: postgresql://verp_admin:${DB_PASSWORD}@postgres:5432/v_erp?schema=public
       REDIS_URL: redis://redis:6379
@@ -86,6 +92,7 @@ volumes:
   postgres_data:
   redis_data:
   minio_data:
+
 
 networks:
   v-erp-network:
