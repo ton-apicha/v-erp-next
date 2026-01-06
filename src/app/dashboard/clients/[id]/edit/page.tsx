@@ -1,29 +1,53 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { use } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Save, Loader2, Building2, User, Phone, Mail, FileText, Briefcase } from 'lucide-react'
+import { ArrowLeft, Save, Loader2, Building2, User, Phone, Mail, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import AddressSelector from '@/components/ui/address-selector'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-export default function NewClientPage() {
+export default function EditClientPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params)
     const router = useRouter()
-    const [loading, setLoading] = useState(false)
+
+    // States
+    const [loading, setLoading] = useState(true)
+    const [saving, setSaving] = useState(false)
     const [error, setError] = useState('')
+    const [data, setData] = useState<any>(null)
     const [address, setAddress] = useState('')
+
+    // Fetch Data
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const res = await fetch(`/api/clients/${id}`)
+                if (!res.ok) throw new Error('Failed to fetch client')
+                const client = await res.json()
+                setData(client)
+                setAddress(client.address || '')
+            } catch (err: any) {
+                setError(err.message)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchData()
+    }, [id])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setError('')
-        setLoading(true)
+        setSaving(true)
 
         const formData = new FormData(e.currentTarget)
-        const data = {
+        const updateData = {
             companyName: formData.get('companyName'),
             companyNameEN: formData.get('companyNameEN'),
             contactPerson: formData.get('contactPerson'),
@@ -31,44 +55,52 @@ export default function NewClientPage() {
             email: formData.get('email'),
             taxId: formData.get('taxId'),
             industry: formData.get('industry'),
-            employeeCount: formData.get('employeeCount'), // Will be parsed in API
+            employeeCount: formData.get('employeeCount'),
+            status: formData.get('status'),
             address: address,
         }
 
         try {
-            const res = await fetch('/api/clients', {
-                method: 'POST',
+            const res = await fetch(`/api/clients/${id}`, {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
+                body: JSON.stringify(updateData),
             })
 
             if (!res.ok) {
                 const errorData = await res.json()
-                throw new Error(errorData.error || 'Failed to create client')
+                throw new Error(errorData.error || 'Update failed')
             }
 
-            router.push('/dashboard/clients')
+            router.push(`/dashboard/clients/${id}`)
             router.refresh()
         } catch (err: any) {
             setError(err.message)
-        } finally {
-            setLoading(false)
+            setSaving(false)
         }
     }
+
+    if (loading) return <div className="p-8 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" /></div>
+
+    if (!data) return <div className="p-8 text-center text-red-500">Client not found</div>
 
     return (
         <div className="max-w-4xl mx-auto">
             {/* Header */}
             <div className="mb-6">
                 <Link
-                    href="/dashboard/clients"
+                    href={`/dashboard/clients/${id}`}
                     className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 transition-colors"
                 >
                     <ArrowLeft className="w-4 h-4" />
-                    กลับไปหน้ารายการ
+                    กลับไปหน้าเช็ครายละเอียด
                 </Link>
-                <h1 className="text-3xl font-bold">เพิ่มนายจ้าง (New Client)</h1>
-                <p className="text-muted-foreground mt-1">กรอกข้อมูลนายจ้าง/สถานประกอบการ</p>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-3xl font-bold">แก้ไขข้อมูลนายจ้าง</h1>
+                        <p className="text-muted-foreground mt-1">ID: {data.clientId}</p>
+                    </div>
+                </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -90,25 +122,25 @@ export default function NewClientPage() {
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="companyName">ชื่อบริษัท (ไทย) <span className="text-red-500">*</span></Label>
-                                <Input id="companyName" name="companyName" required placeholder="บริษัท กขค จำกัด" />
+                                <Input id="companyName" name="companyName" required defaultValue={data.companyName} />
                             </div>
 
                             <div className="space-y-2">
                                 <Label htmlFor="companyNameEN">ชื่อบริษัท (อังกฤษ)</Label>
-                                <Input id="companyNameEN" name="companyNameEN" placeholder="ABC Co., Ltd." />
+                                <Input id="companyNameEN" name="companyNameEN" defaultValue={data.companyNameEN || ''} />
                             </div>
 
                             <div className="space-y-2">
                                 <Label htmlFor="taxId">เลขประจำตัวผู้เสียภาษี</Label>
-                                <Input id="taxId" name="taxId" placeholder="13 หลัก" />
+                                <Input id="taxId" name="taxId" defaultValue={data.taxId || ''} />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="industry">ประเภทธุรกิจ</Label>
-                                    <Select name="industry">
+                                    <Select name="industry" defaultValue={data.industry || 'Other'}>
                                         <SelectTrigger>
-                                            <SelectValue placeholder="เลือก..." />
+                                            <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="Manufacturing">โรงงานอุตสาหกรรม</SelectItem>
@@ -121,8 +153,22 @@ export default function NewClientPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="employeeCount">จำนวนพนักงาน</Label>
-                                    <Input id="employeeCount" name="employeeCount" type="number" placeholder="เช่น 100" />
+                                    <Input id="employeeCount" name="employeeCount" type="number" defaultValue={data.employeeCount || ''} />
                                 </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="status">สถานะ</Label>
+                                <Select name="status" defaultValue={data.status || 'ACTIVE'}>
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="ACTIVE">ใช้งานปกติ</SelectItem>
+                                        <SelectItem value="INACTIVE">ไม่เคลื่อนไหว</SelectItem>
+                                        <SelectItem value="SUSPENDED">ระงับชั่วคราว</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </CardContent>
                     </Card>
@@ -138,14 +184,14 @@ export default function NewClientPage() {
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="contactPerson">ชื่อผู้ติดต่อ <span className="text-red-500">*</span></Label>
-                                <Input id="contactPerson" name="contactPerson" required placeholder="คุณสมหญิง" />
+                                <Input id="contactPerson" name="contactPerson" required defaultValue={data.contactPerson} />
                             </div>
 
                             <div className="space-y-2">
                                 <Label htmlFor="phoneNumber">เบอร์โทรศัพท์ <span className="text-red-500">*</span></Label>
                                 <div className="relative">
                                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                                    <Input id="phoneNumber" name="phoneNumber" required className="pl-9" placeholder="02-xxx-xxxx" />
+                                    <Input id="phoneNumber" name="phoneNumber" required className="pl-9" defaultValue={data.phoneNumber} />
                                 </div>
                             </div>
 
@@ -153,7 +199,7 @@ export default function NewClientPage() {
                                 <Label htmlFor="email">อีเมล</Label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                                    <Input id="email" name="email" type="email" className="pl-9" placeholder="hr@company.com" />
+                                    <Input id="email" name="email" type="email" className="pl-9" defaultValue={data.email || ''} />
                                 </div>
                             </div>
                         </CardContent>
@@ -172,7 +218,11 @@ export default function NewClientPage() {
                         <AddressSelector
                             onAddressChange={setAddress}
                             defaultCountry="TH"
+                            initialAddress={data.address}
                         />
+                        <p className="text-xs text-muted-foreground mt-2">
+                            ที่อยู่เดิม: {data.address}
+                        </p>
                     </CardContent>
                 </Card>
 
@@ -181,8 +231,8 @@ export default function NewClientPage() {
                     <Button type="button" variant="outline" onClick={() => router.back()}>
                         ยกเลิก
                     </Button>
-                    <Button type="submit" disabled={loading}>
-                        {loading ? (
+                    <Button type="submit" disabled={saving}>
+                        {saving ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 กำลังบันทึก...
@@ -190,7 +240,7 @@ export default function NewClientPage() {
                         ) : (
                             <>
                                 <Save className="mr-2 h-4 w-4" />
-                                บันทึกข้อมูล
+                                บันทึกการแก้ไข
                             </>
                         )}
                     </Button>
