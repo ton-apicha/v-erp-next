@@ -1,155 +1,261 @@
 # V-ERP Next.js Full-Stack
 
-> ระบบ ERP สำหรับธุรกิจจัดหาแรงงาน (Lean Architecture)
+> ระบบ ERP สำหรับธุรกิจจัดหาแรงงาน (Labor Management Platform)
 
-## ✅ Project Status: 60% Complete & Deployable
+## ✅ Project Status: 75% Complete & Deployable
 
-### สิ่งที่พร้อมใช้งาน:
-- ✅ Phase 1: Project Setup (Complete)
-- ✅ Phase 2: Authentication & Login (Complete)
-- ✅ Phase 3: Workers CRUD (Complete)
-- ✅ Phase 4: Agents & Clients (Basic - Complete)  
-- ✅ Phase 5: Deployment Files (Complete)
+### 🎯 สิ่งที่พร้อมใช้งาน:
+- ✅ Authentication & Authorization (NextAuth.js)
+- ✅ Workers Management (CRUD + Pipeline)
+- ✅ Agents Management (CRUD)
+- ✅ Clients Management (CRUD)
+- ✅ Finance Module (Basic)
+- ✅ Documents Management
+- ✅ Settings Page (Reset Database)
+- ✅ SOS Alerts
+- ✅ Academy (Placeholder)
+- ✅ User Management
+- ✅ Orders Module
+- ✅ Address Selector Component
 
-### Tech Stack:
+### 🛠️ Tech Stack:
 - **Framework:** Next.js 15 (App Router)
 - **Database:** PostgreSQL (Prisma ORM)
 - **Auth:** NextAuth.js
-- **Styling:** Tailwind CSS
+- **Styling:** Tailwind CSS + shadcn/ui
 - **Language:** TypeScript
+- **i18n:** next-intl (TH/LA/EN)
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Install Dependencies
+### ⚡ Recommended: Run Dev Server on Host
+
 ```bash
-npm install
-```
+# Quick start (recommended)
+./scripts/dev.sh
 
-### 2. Setup PostgreSQL Database
-```bash
-# On VM (35.197.153.65):
-sudo apt update
-sudo apt install postgresql postgresql-contrib
-sudo systemctl start postgresql
-sudo systemctl enable postgresql
-
-# Create database and user
-sudo -u postgres psql
-CREATE USER verp_admin WITH PASSWORD 'your_secure_password';
-CREATE DATABASE v_erp OWNER verp_admin;
-GRANT ALL PRIVILEGES ON DATABASE v_erp TO verp_admin;
-\q
-```
-
-### 3. Update .env.local
-```env
-DATABASE_URL="postgresql://verp_admin:your_password@localhost:5432/v_erp?schema=public"
-NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
-```
-
-### 4. Push Database Schema
-```bash
-npm run db:push
-```
-
-### 5. Run Development Server
-```bash
+# Or manual:
+sudo docker-compose up -d postgres redis minio
 npm run dev
 ```
 
-Visit: **http://localhost:3000**
+เข้าใช้งาน: **http://localhost:3000**
+
+### 🔐 Login Credentials
+
+```
+📧 admin@v-group.la
+🔑 admin123
+```
+
+---
+
+## 📖 Documentation
+
+- [📘 Development Guide](./DEV_GUIDE.md) - คู่มือการพัฒนาแบบละเอียด
+- [📝 TODO & Roadmap](./TODO.md) - แผนงานและฟีเจอร์ที่เหลือ
+- [🔧 Scripts README](./scripts/README.md) - คำอธิบาย helper scripts
 
 ---
 
 ## 📁 Project Structure
 
 ```
-V-ERP-Next/
+v-erp-next/
 ├── prisma/
-│   └── schema.prisma          # Database Schema
+│   ├── schema.prisma          # Database Schema
+│   └── seed-full.js           # Seed Data
 ├── src/
-│   ├── app/
-│   │   ├── (admin)/          # V-CORE routes (TODO)
-│   │   ├── partner/          # V-PARTNER routes (TODO)
-│   │   ├── client/           # V-CLIENT routes (TODO)
-│   │   ├── life/             # V-LIFE routes (TODO)
-│   │   ├── api/              # API Routes (TODO)
-│   │   ├── layout.tsx
-│   │   ├── page.tsx          # ✅ Home Page
-│   │   └── globals.css
-│   ├── components/           # Shared Components (TODO)
-│   ├── lib/                  # Utilities (TODO)
-│   └── types/                # TypeScript Types (TODO)
-├── .env.local
-├── package.json
-├── tailwind.config.js
-├── tsconfig.json
-└── next.config.mjs
+│   ├── actions/               # Server Actions
+│   ├── app/[locale]/
+│   │   ├── dashboard/        # Main Dashboard (V-CORE)
+│   │   │   ├── workers/      # ✅ Workers Module
+│   │   │   ├── agents/       # ✅ Agents Module
+│   │   │   ├── clients/      # ✅ Clients Module
+│   │   │   ├── finance/      # ✅ Finance Module
+│   │   │   ├── documents/    # ✅ Documents Module
+│   │   │   ├── sos/          # ✅ SOS Alerts
+│   │   │   ├── academy/      # ✅ Academy (Placeholder)
+│   │   │   ├── users/        # ✅ User Management
+│   │   │   ├── orders/       # ✅ Orders Module
+│   │   │   └── settings/     # ✅ Settings
+│   │   └── api/              # API Routes
+│   ├── components/
+│   │   ├── ui/               # shadcn/ui components
+│   │   ├── address/          # ✅ AddressSelector
+│   │   ├── layout/           # Layout components
+│   │   └── ...               # Other components
+│   ├── lib/                  # Utilities
+│   └── messages/             # i18n translations
+├── scripts/
+│   ├── dev.sh               # ✅ Start dev environment
+│   └── stop.sh              # ✅ Stop services
+├── DEV_GUIDE.md             # ✅ Development guide
+├── docker-compose.yml       # Docker services
+└── Dockerfile               # Production dockerfile
 ```
 
 ---
 
-## 🎨 Portals
+## 🎨 Features
 
-| Portal | Route | Description | Status |
-|--------|-------|-------------|--------|
-| **V-CORE** | `/` | Admin Dashboard | 🔄 In Progress |
-| **V-PARTNER** | `/partner` | Agent Portal | ⏳ Pending |
-| **V-CLIENT** | `/client` | Employer Portal | ⏳ Pending |
-| **V-LIFE** | `/life` | Worker App | ⏳ Pending |
+### ✅ Core Modules
+
+| Module | Features | Status |
+|--------|----------|--------|
+| **Workers** | CRUD, Pipeline, Status Management | ✅ Complete |
+| **Agents** | CRUD, Worker Assignment | ✅ Complete |
+| **Clients** | CRUD, Worker Assignment | ✅ Complete |
+| **Finance** | Loans, Payments, Commissions | ✅ Basic |
+| **Documents** | Upload, Expiry Alerts | ✅ Complete |
+| **Orders** | Status Workflow, Assignment | ✅ Basic |
+| **Users** | Role-based Permissions | ✅ Complete |
+| **Settings** | Reset Database, Profile | ✅ Basic |
+
+### 🔄 In Progress
+
+- [ ] Dashboard Charts & Analytics
+- [ ] Global Search
+- [ ] Real-time Notifications
+- [ ] Commission Calculator
+- [ ] Create Order Form
+- [ ] Training Schedule Management
 
 ---
 
-## 📋 Next Steps (Phase 2)
+## 🐳 Docker Services
 
-### Priority 1: Authentication
-- [ ] Setup NextAuth.js
-- [ ] Create Login Page
-- [ ] Create User Seed Data
-- [ ] Implement Role-Based Access Control
+### Services Included
 
-### Priority 2: V-CORE (Admin Dashboard)
-- [ ] Dashboard Overview
-- [ ] Workers CRUD
-- [ ] Agents CRUD
-- [ ] Clients CRUD
-- [ ] Sidebar Navigation
-- [ ] Data Tables with Pagination
+```yaml
+- PostgreSQL (Database)
+- Redis (Cache & Sessions)
+- MinIO (File Storage)
+- Nginx (Reverse Proxy - Production)
+```
 
-### Priority 3: Advanced Features
-- [ ] Document Upload
-- [ ] Search & Filters
-- [ ] Reports & Analytics
-- [ ] Notifications
+### Commands
+
+```bash
+# Start all services
+sudo docker-compose up -d
+
+# View logs
+sudo docker-compose logs -f
+
+# Stop services
+sudo docker-compose down
+
+# Restart specific service
+sudo docker-compose restart postgres
+```
 
 ---
 
 ## 🔧 Development Commands
 
 ```bash
-npm run dev          # Start development server
+# Development
+npm run dev          # Start dev server (on host)
 npm run build        # Build for production
 npm run start        # Start production server
 npm run lint         # Run ESLint
-npm run db:push      # Push schema to database
-npm run db:studio    # Open Prisma Studio
-npm run db:generate  # Generate Prisma Client
+
+# Database
+npx prisma studio    # Open Prisma Studio (GUI)
+npx prisma generate  # Generate Prisma Client
+npx prisma db push   # Push schema to database
+node prisma/seed-full.js  # Seed data
+
+# Testing
+npm test            # Run Jest tests
+
+# Helper Scripts
+./scripts/dev.sh    # Start dev environment
+./scripts/stop.sh   # Stop all services
 ```
 
 ---
 
-## ⚙️ Deployment
+## 🌍 Internationalization
 
-### Docker Build
-(Coming soon - Phase 5)
+รองรับ 3 ภาษา:
+- 🇹🇭 ภาษาไทย (th)
+- 🇱🇦 ພາສາລາວ (la)
+- 🇬🇧 English (en)
 
-### VM Deployment
-(Coming soon - Phase 5)
+เปลี่ยนภาษาได้ที่ Header dropdown
+
+---
+
+## 🚀 Deployment
+
+### Production (Docker)
+
+```bash
+# Build and start
+sudo docker-compose up -d --build
+
+# App runs on port 3000
+# Use nginx as reverse proxy
+```
+
+### Environment Variables
+
+Required for production:
+
+```env
+DATABASE_URL=postgresql://...
+NEXTAUTH_URL=https://your-domain.com
+NEXTAUTH_SECRET=your-secret-key
+REDIS_URL=redis://redis:6379
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### Port Already in Use
+
+```bash
+lsof -i :3000
+kill -9 <PID>
+```
+
+### Database Connection Error
+
+```bash
+sudo docker-compose restart postgres
+```
+
+### Prisma Client Out of Sync
+
+```bash
+npx prisma generate
+```
+
+ดูเพิ่มเติมที่ [DEV_GUIDE.md](./DEV_GUIDE.md)
+
+---
+
+## 📊 Version History
+
+- **v1.2.0** (2026-01-06) - Settings, Documents, SOS, Academy, Users, Orders, AddressSelector
+- **v1.1.0** - Workers, Agents, Clients modules complete
+- **v1.0.0** - Initial release with authentication
 
 ---
 
 ## 📄 License
 
 © 2026 V-GROUP. All rights reserved.
+
+---
+
+## 👥 Team
+
+Developed by V-GROUP Development Team
+
+For questions or support, contact: admin@v-group.la
