@@ -57,7 +57,7 @@ export default async function DocumentsPage({
             worker: { select: { workerId: true, firstNameTH: true, lastNameTH: true } },
             agent: { select: { agentId: true, companyName: true } },
             client: { select: { clientId: true, companyName: true } },
-            uploadedBy: { select: { name: true } },
+
         },
         orderBy: { createdAt: 'desc' },
         take: 100,

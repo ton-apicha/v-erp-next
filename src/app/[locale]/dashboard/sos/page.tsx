@@ -198,8 +198,8 @@ export default async function SosAlertsPage({
                         <Card
                             key={alert.id}
                             className={`transition-all ${alert.status === 'OPEN'
-                                    ? 'border-red-300 shadow-lg shadow-red-100 dark:shadow-red-950'
-                                    : ''
+                                ? 'border-red-300 shadow-lg shadow-red-100 dark:shadow-red-950'
+                                : ''
                                 }`}
                         >
                             <CardContent className="py-4">
@@ -207,7 +207,7 @@ export default async function SosAlertsPage({
                                     {/* Left: Alert Info */}
                                     <div className="flex items-start gap-4">
                                         <div className={`p-3 rounded-full ${alert.status === 'OPEN' ? 'bg-red-100' :
-                                                alert.status === 'IN_PROGRESS' ? 'bg-yellow-100' : 'bg-green-100'
+                                            alert.status === 'IN_PROGRESS' ? 'bg-yellow-100' : 'bg-green-100'
                                             }`}>
                                             {statusIcons[alert.status]}
                                         </div>
@@ -249,10 +249,10 @@ export default async function SosAlertsPage({
                                                 </div>
                                             )}
 
-                                            {/* Message */}
-                                            {alert.message && (
+                                            {/* Description */}
+                                            {alert.description && (
                                                 <p className="text-sm bg-muted p-2 rounded">
-                                                    💬 {alert.message}
+                                                    💬 {alert.description}
                                                 </p>
                                             )}
 

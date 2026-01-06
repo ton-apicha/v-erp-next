@@ -27,12 +27,59 @@ const notoSansLao = Noto_Sans_Lao({
     display: 'swap',
 })
 
-export const metadata: Metadata = {
-    title: 'V-ERP | Enterprise Resource Planning',
-    description: 'ระบบบริหารจัดการทรัพยากรองค์กร สำหรับธุรกิจจัดหาแรงงาน',
-    icons: {
-        icon: '/favicon.ico',
-    },
+export async function generateMetadata({
+    params
+}: {
+    params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+    const { locale } = await params;
+    const messages = await getMessages({ locale });
+    const t = (key: string) => {
+        // Simple helper to access nested messages safely
+        const keys = key.split('.');
+        let current: any = messages;
+        for (const k of keys) {
+            current = current?.[k];
+        }
+        return current as string;
+    };
+
+    const title = t('SEO.title');
+    const description = t('SEO.description');
+
+    return {
+        title: {
+            default: title,
+            template: '%s | V-GROUP'
+        },
+        description: description,
+        keywords: t('SEO.keywords'),
+        openGraph: {
+            title: title,
+            description: description,
+            url: 'https://v-erp.itd.in.th',
+            siteName: 'V-GROUP',
+            locale: locale,
+            type: 'website',
+            images: [
+                {
+                    url: '/images/og-image.jpg', // We will need to create this
+                    width: 1200,
+                    height: 630,
+                    alt: 'V-GROUP Landing',
+                }
+            ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: title,
+            description: description,
+            images: ['/images/og-image.jpg'],
+        },
+        icons: {
+            icon: '/favicon.ico',
+        },
+    }
 }
 
 export default async function LocaleLayout({
