@@ -60,8 +60,8 @@ export default function Header({ user, onToggleSidebar, notificationCount = 0 }:
             </Button>
 
             {/* Global Search */}
-            <div className="flex-1 max-w-md">
-                <div className="relative">
+            <div className="flex-1">
+                <div className="relative max-w-md">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         type="search"
