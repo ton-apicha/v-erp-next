@@ -17,6 +17,7 @@ import {
     LogOut,
     AlertTriangle,
     UserCog,
+    ShoppingCart,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -53,6 +54,7 @@ export default function Sidebar({ user, collapsed = false }: SidebarProps) {
                 { href: '/dashboard/workers', label: t('workers'), icon: Users },
                 { href: '/dashboard/agents', label: t('agents'), icon: Handshake },
                 { href: '/dashboard/clients', label: t('clients'), icon: Building2 },
+                { href: '/dashboard/orders', label: 'ออเดอร์', icon: ShoppingCart },
             ],
         },
         {

@@ -1,6 +1,6 @@
 # 📝 TODO & Roadmap
 
-## 🎯 Current Status: 70% Complete
+## 🎯 Current Status: 75% Complete
 
 ---
 
@@ -104,6 +104,23 @@
 - [x] Academy Placeholder Page
 - [ ] Training Schedule Management
 - [ ] Material Issuance Tracking
+
+#### 8. User Management (NEW)
+- [x] User List Page
+- [x] User CRUD Actions
+- [x] Role-based Permissions
+- [ ] Activity Logs View
+
+#### 9. Orders Module (NEW)
+- [x] Orders List Page
+- [x] Status Workflow Display
+- [ ] Create Order Form
+- [ ] Assign Workers to Order
+
+#### 10. Address System (NEW)
+- [x] AddressSelector Component
+- [x] Cascading Dropdowns (Country/Province/District)
+- [ ] Integrate to Worker/Agent/Client Forms
 
 ---
 
