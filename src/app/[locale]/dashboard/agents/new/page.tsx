@@ -9,9 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import AddressSelector from '@/components/ui/address-selector'
-import { useToast } from '@/components/ui/use-toast' // We might not have this yet, checking... using alert for now if unsure, or simple error state.
-// Actually let's check for ui components. `list_dir` showed ui folder.
-// I'll stick to simple state for error/success to be safe, or use standard alert if needed, but I'll try to use professional UI structure.
+
 
 export default function NewAgentPage() {
     const router = useRouter()

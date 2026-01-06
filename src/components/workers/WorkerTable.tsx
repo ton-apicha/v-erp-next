@@ -2,6 +2,17 @@
 
 import { Worker } from '@prisma/client'
 import { Edit, Trash2, Eye } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table'
+import Link from 'next/link'
 
 type WorkerWithRelations = Worker & {
     createdBy: { name: string }
@@ -27,7 +38,7 @@ export default function WorkerTable({ workers }: { workers: WorkerWithRelations[
 
     if (workers.length === 0) {
         return (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-muted-foreground">
                 <p className="text-lg mb-2">ยังไม่มีข้อมูลแรงงาน</p>
                 <p className="text-sm">กรุณาเพิ่มแรงงานคนแรก</p>
             </div>
@@ -35,114 +46,86 @@ export default function WorkerTable({ workers }: { workers: WorkerWithRelations[
     }
 
     return (
-        <div className="overflow-x-auto">
-            <table className="w-full">
-                <thead>
-                    <tr className="border-b border-gray-200">
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">รหัส</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">ชื่อ-สกุล</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">เพศ</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">เบอร์โทร</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">สถานะ</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">ตัวแทน</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">นายจ้าง</th>
-                        <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">จัดการ</th>
-                    </tr>
-                </thead>
-                <tbody>
+        <div className="rounded-md border">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>รหัส</TableHead>
+                        <TableHead>ชื่อ-สกุล</TableHead>
+                        <TableHead>เพศ</TableHead>
+                        <TableHead>เบอร์โทร</TableHead>
+                        <TableHead>สถานะ</TableHead>
+                        <TableHead>ตัวแทน</TableHead>
+                        <TableHead>นายจ้าง</TableHead>
+                        <TableHead className="text-right">จัดการ</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
                     {workers.map((worker) => (
-                        <tr key={worker.id} className="border-b border-gray-100 hover:bg-gray-50">
-                            <td className="py-3 px-4">
-                                <span className="font-mono text-sm text-gray-900">{worker.workerId}</span>
-                            </td>
-                            <td className="py-3 px-4">
+                        <TableRow key={worker.id}>
+                            <TableCell className="font-mono text-sm">{worker.workerId}</TableCell>
+                            <TableCell>
                                 <div>
-                                    <p className="font-medium text-gray-900">
+                                    <p className="font-medium text-foreground">
                                         {worker.firstNameTH} {worker.lastNameTH}
                                     </p>
                                     {worker.nickname && (
-                                        <p className="text-sm text-gray-500">({worker.nickname})</p>
+                                        <p className="text-xs text-muted-foreground">({worker.nickname})</p>
                                     )}
                                 </div>
-                            </td>
-                            <td className="py-3 px-4 text-sm text-gray-600">
-                                {worker.gender === 'MALE' ? 'ชาย' : worker.gender === 'FEMALE' ? 'หญิง' : 'อื่นๆ'}
-                            </td>
-                            <td className="py-3 px-4 text-sm text-gray-600">
-                                {worker.phoneNumber || '-'}
-                            </td>
-                            <td className="py-3 px-4">
+                            </TableCell>
+                            <TableCell>{worker.gender === 'MALE' ? 'ชาย' : worker.gender === 'FEMALE' ? 'หญิง' : 'อื่นๆ'}</TableCell>
+                            <TableCell>{worker.phoneNumber || '-'}</TableCell>
+                            <TableCell>
                                 <StatusBadge status={worker.status} />
-                            </td>
-                            <td className="py-3 px-4 text-sm text-gray-600">
-                                {worker.agent?.companyName || '-'}
-                            </td>
-                            <td className="py-3 px-4 text-sm text-gray-600">
-                                {worker.client?.companyName || '-'}
-                            </td>
-                            <td className="py-3 px-4">
+                            </TableCell>
+                            <TableCell className="text-muted-foreground">{worker.agent?.companyName || '-'}</TableCell>
+                            <TableCell className="text-muted-foreground">{worker.client?.companyName || '-'}</TableCell>
+                            <TableCell className="text-right">
                                 <div className="flex items-center justify-end gap-2">
-                                    <a
-                                        href={`/dashboard/workers/${worker.id}`}
-                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                        title="ดูรายละเอียด"
-                                    >
-                                        <Eye className="w-4 h-4" />
-                                    </a>
-                                    <a
-                                        href={`/dashboard/workers/${worker.id}/edit`}
-                                        className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                                        title="แก้ไข"
-                                    >
-                                        <Edit className="w-4 h-4" />
-                                    </a>
-                                    <button
+                                    <Link href={`/dashboard/workers/${worker.id}`}>
+                                        <Button variant="ghost" size="icon" title="ดูรายละเอียด">
+                                            <Eye className="w-4 h-4 text-blue-600" />
+                                        </Button>
+                                    </Link>
+                                    <Link href={`/dashboard/workers/${worker.id}/edit`}>
+                                        <Button variant="ghost" size="icon" title="แก้ไข">
+                                            <Edit className="w-4 h-4 text-foreground" />
+                                        </Button>
+                                    </Link>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
                                         onClick={() => handleDelete(worker.id, `${worker.firstNameTH} ${worker.lastNameTH}`)}
-                                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                         title="ลบ"
                                     >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
+                                        <Trash2 className="w-4 h-4 text-red-600" />
+                                    </Button>
                                 </div>
-                            </td>
-                        </tr>
+                            </TableCell>
+                        </TableRow>
                     ))}
-                </tbody>
-            </table>
+                </TableBody>
+            </Table>
         </div>
     )
 }
 
 function StatusBadge({ status }: { status: string }) {
-    const styles: Record<string, string> = {
-        NEW_LEAD: 'bg-gray-100 text-gray-800',
-        SCREENING: 'bg-yellow-100 text-yellow-800',
-        PROCESSING: 'bg-blue-100 text-blue-800',
-        ACADEMY: 'bg-indigo-100 text-indigo-800',
-        READY: 'bg-green-100 text-green-800',
-        DEPLOYED: 'bg-teal-100 text-teal-800',
-        WORKING: 'bg-purple-100 text-purple-800',
-        COMPLETED: 'bg-slate-100 text-slate-800',
-        TERMINATED: 'bg-red-100 text-red-800',
-        REJECTED: 'bg-red-100 text-red-800',
+    const config: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+        NEW_LEAD: { label: 'รายชื่อใหม่', variant: 'secondary' },
+        SCREENING: { label: 'รอตรวจสอบ', variant: 'outline' },
+        PROCESSING: { label: 'กำลังดำเนินการ', variant: 'outline' },
+        ACADEMY: { label: 'ฝึกอบรม', variant: 'outline' },
+        READY: { label: 'พร้อมส่งตัว', variant: 'secondary' },
+        DEPLOYED: { label: 'ส่งตัวแล้ว', variant: 'secondary' },
+        WORKING: { label: 'กำลังทำงาน', variant: 'default' },
+        COMPLETED: { label: 'สิ้นสุดสัญญา', variant: 'outline' },
+        TERMINATED: { label: 'เลิกจ้าง', variant: 'destructive' },
+        REJECTED: { label: 'ปฏิเสธ', variant: 'destructive' },
     }
 
-    const labels: Record<string, string> = {
-        NEW_LEAD: 'รายชื่อใหม่',
-        SCREENING: 'รอตรวจสอบ',
-        PROCESSING: 'กำลังดำเนินการ',
-        ACADEMY: 'ฝึกอบรม',
-        READY: 'พร้อมส่งตัว',
-        DEPLOYED: 'ส่งตัวแล้ว',
-        WORKING: 'กำลังทำงาน',
-        COMPLETED: 'สิ้นสุดสัญญา',
-        TERMINATED: 'เลิกจ้าง',
-        REJECTED: 'ปฏิเสธ',
-    }
+    const { label, variant } = config[status] || { label: status, variant: 'secondary' }
 
-    return (
-        <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${styles[status] || 'bg-gray-100 text-gray-800'}`}>
-            {labels[status] || status}
-        </span>
-    )
+    return <Badge variant={variant}>{label}</Badge>
 }

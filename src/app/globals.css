@@ -7,42 +7,42 @@
     /* Sky Blue Theme */
     --background: 0 0% 100%;
     --foreground: 210 40% 11%;
-    
+
     --card: 0 0% 100%;
     --card-foreground: 210 40% 11%;
-    
+
     --popover: 0 0% 100%;
     --popover-foreground: 210 40% 11%;
-    
+
     /* Sky Blue Primary */
     --primary: 199 89% 48%;
     --primary-foreground: 0 0% 100%;
-    
+
     --secondary: 210 40% 96%;
     --secondary-foreground: 210 40% 11%;
-    
+
     --muted: 210 40% 96%;
     --muted-foreground: 210 20% 45%;
-    
+
     --accent: 210 40% 96%;
     --accent-foreground: 210 40% 11%;
-    
+
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    
+
     --border: 210 31% 91%;
     --input: 210 31% 91%;
     --ring: 199 89% 48%;
-    
+
     /* Chart colors */
     --chart-1: 199 89% 48%;
     --chart-2: 160 84% 39%;
     --chart-3: 43 96% 56%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    
+
     --radius: 0.5rem;
-    
+
     /* Sidebar colors */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 210 40% 11%;
@@ -57,40 +57,40 @@
   .dark {
     --background: 210 40% 11%;
     --foreground: 210 40% 98%;
-    
+
     --card: 210 40% 14%;
     --card-foreground: 210 40% 98%;
-    
+
     --popover: 210 40% 14%;
     --popover-foreground: 210 40% 98%;
-    
+
     /* Sky Blue Primary (bright in dark mode) */
     --primary: 199 89% 56%;
     --primary-foreground: 210 40% 11%;
-    
+
     --secondary: 210 40% 20%;
     --secondary-foreground: 210 40% 98%;
-    
+
     --muted: 210 40% 20%;
     --muted-foreground: 210 20% 55%;
-    
+
     --accent: 210 40% 20%;
     --accent-foreground: 210 40% 98%;
-    
+
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 98%;
-    
+
     --border: 210 40% 20%;
     --input: 210 40% 20%;
     --ring: 199 89% 56%;
-    
+
     /* Dark mode charts */
     --chart-1: 199 89% 56%;
     --chart-2: 160 84% 46%;
     --chart-3: 43 96% 60%;
     --chart-4: 280 65% 65%;
     --chart-5: 340 75% 60%;
-    
+
     /* Sidebar dark */
     --sidebar-background: 210 40% 14%;
     --sidebar-foreground: 210 40% 98%;
@@ -113,9 +113,10 @@
 }
 
 @layer components {
+
   /* Card Component */
   .card {
-    @apply bg-white rounded-xl shadow-xl border border-slate-100 p-6;
+    @apply bg-white dark:bg-card rounded-xl shadow-xl border border-slate-100 dark:border-border p-6 text-card-foreground;
   }
 
   /* Input Component */

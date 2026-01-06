@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { ArrowRight, Users, Building2, UserCircle, Smartphone } from 'lucide-react'
 
 export default function HomePage() {

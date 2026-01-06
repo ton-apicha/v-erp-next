@@ -1,64 +1,59 @@
-# 📋 Comprehensive Implementation Plan
+# Implementation Plan - Trilingual Support (TH/EN/LA)
 
-## 1. 🌍 Address System (Foundation)
-The address system is critical for professional data entry. We need to implement standard location selection (Thailand & Laos).
+We will implement a complete internationalization system allowing users to switch between Thai (default), English, and Lao. We will use `next-intl` as it provides the most robust support for Next.js App Router (Server Components).
 
-- [x] **API Routes**: Create endpoints to fetch location data.
-  - `GET /api/locations/provinces` (Filter by country: TH, LA)
-  - `GET /api/locations/districts` (Filter by province)
-  - `GET /api/locations/subdistricts` (Filter by district)
-- [x] **UI Component**: Create a reusable `AddressSelector` component.
-  - Support Country selection (Laos/Thailand default).
-  - Cascading dropdowns (Province -> District -> Subdistrict).
-  - Auto-fill Zip code (if available in schema).
+## User Review Required
 
-## 2. 🤝 Agents Module (Master Data)
-Agents are required before we can fully utilize the Worker module.
+> [!WARNING]
+> **Breaking Change**: This refactor involves moving all pages from `src/app/*` to `src/app/[locale]/*` to support internationalized routing (e.g., `/th/dashboard`, `/en/dashboard`).
+> Links in the application will need to be updated to use the `Link` component from `next-intl` (or a wrapped version) to automatically handle the locale prefix.
 
-- [x] **API Routes**:
-  - `POST /api/agents` (Create new agent)
-  - `PUT /api/agents/[id]` (Update agent)
-  - `DELETE /api/agents/[id]` (Archive/Delete)
-  - `GET /api/agents` (List & Minimal list)
-- [x] **UI Pages**:
-  - `src/app/dashboard/agents/new/page.tsx`: Create Agent Form (incorporating `AddressSelector`).
-  - `src/app/dashboard/agents/[id]/edit/page.tsx`: Edit Agent Form.
+## Proposed Changes
 
-## 3. 🏢 Clients Module (Master Data)
-Similar to Agents, Clients are essential for assigning workers.
+### 1. Dependencies & Configuration
+- **Install**: `npm install next-intl`
+- **Config**:
+    - Create `src/i18n/request.ts` for locale request handling.
+    - Update `next.config.mjs` with `createNextIntlPlugin`.
+    - Create `src/middleware.ts` to handle locale extraction and redirection.
 
-- [x] **API Routes**:
-  - `POST /api/clients` (Create new client)
-  - `PUT /api/clients/[id]` (Update client)
-  - `DELETE /api/clients/[id]` (Archive/Delete)
-  - `GET /api/clients` (List & Minimal list)
-- [x] **UI Pages**:
-  - `src/app/dashboard/clients/new/page.tsx`: Create Client Form.
-  - `src/app/dashboard/clients/[id]/edit/page.tsx`: Edit Client Form.
+### 2. Project Structure Refactor
+- Move `src/app/dashboard` and other route groups inside `src/app/[locale]`.
+- Keep `src/app/api` at the root (APIs usually don't need locale prefixes, or we can handle it differently).
+- Create `src/messages/` directory for translation files:
+    - `th.json`: Thai (Master)
+    - `en.json`: English
+    - `la.json`: Lao
 
-## 4. 👷 Workers Module (Core)
-Upgrade the existing module to use the new foundation.
+### 3. Translation Content
+- **Sidebar**: Complete translation of menu items.
+- **Header**: Language switcher logic and UI text.
+- **Dashboard**: "Welcome", "Statistics", "Quick Actions".
+- **Common**: Buttons ("Save", "Cancel", "Delete"), Statuses.
 
-- [x] **Enhance Create Form** (`workers/new`):
-  - Add **Agent Selection** (Dropdown from Agent API).
-  - Add **Client Selection** (Dropdown from Client API).
-  - Replace text address fields with `AddressSelector`.
-- [x] **Create Edit Form**:
-  - `src/app/dashboard/workers/[id]/edit/page.tsx`: Full edit capability.
-- [ ] **Status Workflow**:
-  - Add UI controls to change worker status (e.g., button to move from "Screening" to "Ready").
+### 4. Component Updates
+#### [MODIFY] [Header.tsx](file:///home/tataff_001/Desktop/CODE/v-erp-next/src/components/layout/Header.tsx)
+- Use `useLocale` and `useRouter`/`usePathname` from `next-intl/client` to switch languages.
+- Create a `LocaleSwitcher` logic.
 
-## 5. 📂 Document Management
-Ensure the document upload system connects properly to all entities.
+#### [MODIFY] [Sidebar.tsx](file:///home/tataff_001/Desktop/CODE/v-erp-next/src/components/layout/Sidebar.tsx)
+- Replace hardcoded text with `t('sidebar.dashboard')`, etc.
 
-- [x] Verify `DocumentUpload` component works with new Agent/Client entities.
-- [ ] Ensure `minio` setup is robust or provide fallback/mock for local dev.
+#### [MODIFY] [Page Components]
+- Update `DashboardPage`, `WorkersPage`, etc., to use `getTranslations` (Server Components) or `useTranslations` (Client Components).
 
----
+## Verification Plan
 
-## 🚀 Workflow Execution Order
-1.  **Address APIs** -> Enable standard addresses.
-2.  **Agent/Client APIs** -> Enable creating master data.
-3.  **Address UI Component** -> Enable usage in forms.
-4.  **Agent/Client Forms** -> Populate the system.
-5.  **Refactor Worker Form** -> Connect everything together.
+### Automated Tests
+- Run `npm run build` to ensure the file move didn't break import paths.
+
+### Manual Verification
+1. **Locale Switching**:
+    - Go to `/dashboard` -> Should redirect to `/th/dashboard` (default).
+    - Use Header dropdown to switch to "English". Link should change to `/en/dashboard`.
+    - Verify text updates to English.
+    - Switch to "Lao". Verify text updates to Lao.
+2. **Data Persistence**:
+    - Ensure page content (Workers list) still loads correctly in all locales.
+3. **Sidebar Navigation**:
+    - Click links in Sidebar. Ensure they preserve the current locale (e.g., clicking "Workers" while in English stays in `/en/dashboard/workers`).

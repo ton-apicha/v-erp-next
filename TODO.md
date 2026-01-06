@@ -258,10 +258,11 @@
 - [ ] Add loading skeletons
 - [ ] Improve form validation messages
 - [ ] Add keyboard shortcuts
-- [ ] Dark mode toggle
+- [x] Dark mode toggle
 - [ ] Print-friendly views
 
 ### Performance
+
 - [ ] Implement pagination
 - [ ] Add caching (React Query)
 - [ ] Optimize images

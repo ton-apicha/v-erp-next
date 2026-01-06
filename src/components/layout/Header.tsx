@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { Link, useRouter, usePathname } from '@/i18n/routing'
+import { useLocale, useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import {
     Bell,
@@ -38,11 +39,18 @@ interface HeaderProps {
 
 export default function Header({ user, onToggleSidebar, notificationCount = 0 }: HeaderProps) {
     const [isDark, setIsDark] = useState(false)
-    const [locale, setLocale] = useState('th')
+    const locale = useLocale()
+    const router = useRouter()
+    const pathname = usePathname()
+    const t = useTranslations('Common')
 
     const toggleTheme = () => {
         setIsDark(!isDark)
         document.documentElement.classList.toggle('dark')
+    }
+
+    const changeLocale = (nextLocale: string) => {
+        router.replace(pathname, { locale: nextLocale as "th" | "la" | "en" })
     }
 
     const initials = user.name
@@ -65,7 +73,7 @@ export default function Header({ user, onToggleSidebar, notificationCount = 0 }:
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         type="search"
-                        placeholder="ค้นหาแรงงาน, ตัวแทน, นายจ้าง..."
+                        placeholder="Search..." // TODO: Add translation key for search placeholder
                         className="pl-9 w-full"
                     />
                 </div>
@@ -80,15 +88,15 @@ export default function Header({ user, onToggleSidebar, notificationCount = 0 }:
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>ภาษา / Language</DropdownMenuLabel>
+                        <DropdownMenuLabel>Language</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => setLocale('th')}>
+                        <DropdownMenuItem onClick={() => changeLocale('th')}>
                             🇹🇭 ไทย {locale === 'th' && '✓'}
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setLocale('la')}>
+                        <DropdownMenuItem onClick={() => changeLocale('la')}>
                             🇱🇦 ລາວ {locale === 'la' && '✓'}
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setLocale('en')}>
+                        <DropdownMenuItem onClick={() => changeLocale('en')}>
                             🇺🇸 English {locale === 'en' && '✓'}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -116,31 +124,23 @@ export default function Header({ user, onToggleSidebar, notificationCount = 0 }:
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-80">
                         <DropdownMenuLabel className="flex items-center justify-between">
-                            <span>การแจ้งเตือน</span>
-                            <Badge variant="secondary">{notificationCount} ใหม่</Badge>
+                            <span>Notifications</span>
+                            <Badge variant="secondary">{notificationCount} New</Badge>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
+                        {/* Dummy notifications, in real app should be fetched */}
                         <div className="max-h-64 overflow-y-auto">
+                            {/* ... keeping dummy data for now or we could use t() if we had keys ... */}
                             <DropdownMenuItem className="flex flex-col items-start gap-1 cursor-pointer">
-                                <p className="text-sm font-medium">🔴 SOS แจ้งเหตุฉุกเฉิน</p>
-                                <p className="text-xs text-muted-foreground">แรงงาน W-20260106-001 ส่งสัญญาณ SOS</p>
-                                <p className="text-xs text-muted-foreground">5 นาทีที่แล้ว</p>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="flex flex-col items-start gap-1 cursor-pointer">
-                                <p className="text-sm font-medium">📄 วีซ่าใกล้หมดอายุ</p>
-                                <p className="text-xs text-muted-foreground">มี 3 คนที่วีซ่าจะหมดอายุใน 30 วัน</p>
-                                <p className="text-xs text-muted-foreground">1 ชั่วโมงที่แล้ว</p>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="flex flex-col items-start gap-1 cursor-pointer">
-                                <p className="text-sm font-medium">💰 มีค่าคอมมิชชั่นรออนุมัติ</p>
-                                <p className="text-xs text-muted-foreground">Agent A-0012 มียอด 15,000 บาท</p>
-                                <p className="text-xs text-muted-foreground">2 ชั่วโมงที่แล้ว</p>
+                                <p className="text-sm font-medium">🔴 SOS Alert</p>
+                                <p className="text-xs text-muted-foreground">Worker W-20260106-001 sent SOS</p>
+                                <p className="text-xs text-muted-foreground">5 mins ago</p>
                             </DropdownMenuItem>
                         </div>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                             <Link href="/dashboard/notifications" className="w-full text-center text-primary">
-                                ดูทั้งหมด
+                                View All
                             </Link>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -172,16 +172,17 @@ export default function Header({ user, onToggleSidebar, notificationCount = 0 }:
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                            <Link href="/dashboard/profile">โปรไฟล์</Link>
+                            <Link href="/dashboard/profile">Profile</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link href="/dashboard/settings">ตั้งค่า</Link>
+                            <Link href="/dashboard/settings">Settings</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild className="text-destructive">
+                            {/* Form action remains same, but might need adjustment if using localized routes for signout? No, APIs are usually locale-agnostic or handled by NextAuth */}
                             <form action="/api/auth/signout" method="POST" className="w-full">
                                 <button type="submit" className="w-full text-left">
-                                    ออกจากระบบ
+                                    {t('logOut') || 'Log Out'}
                                 </button>
                             </form>
                         </DropdownMenuItem>

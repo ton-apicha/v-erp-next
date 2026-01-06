@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { Link, usePathname } from '@/i18n/routing'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import {
     LayoutDashboard,
@@ -34,40 +34,41 @@ interface SidebarProps {
     collapsed?: boolean
 }
 
-const menuItems = [
-    {
-        title: 'ภาพรวม',
-        items: [
-            { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        ],
-    },
-    {
-        title: 'Operation Hub',
-        items: [
-            { href: '/dashboard/workers', label: 'แรงงาน', icon: Users },
-            { href: '/dashboard/agents', label: 'ตัวแทน', icon: Handshake },
-            { href: '/dashboard/clients', label: 'นายจ้าง', icon: Building2 },
-        ],
-    },
-    {
-        title: 'การเงิน',
-        items: [
-            { href: '/dashboard/finance', label: 'ศูนย์การเงิน', icon: CreditCard },
-        ],
-    },
-    {
-        title: 'อื่นๆ',
-        items: [
-            { href: '/dashboard/documents', label: 'เอกสาร', icon: FileText },
-            { href: '/dashboard/academy', label: 'ศูนย์ฝึก', icon: GraduationCap },
-            { href: '/dashboard/reports', label: 'รายงาน', icon: BarChart3 },
-            { href: '/dashboard/settings', label: 'ตั้งค่า', icon: Settings },
-        ],
-    },
-]
-
 export default function Sidebar({ user, collapsed = false }: SidebarProps) {
     const pathname = usePathname()
+    const t = useTranslations('Sidebar')
+
+    const menuItems = [
+        {
+            title: t('overview'),
+            items: [
+                { href: '/dashboard', label: t('dashboard'), icon: LayoutDashboard },
+            ],
+        },
+        {
+            title: t('operationHub'),
+            items: [
+                { href: '/dashboard/workers', label: t('workers'), icon: Users },
+                { href: '/dashboard/agents', label: t('agents'), icon: Handshake },
+                { href: '/dashboard/clients', label: t('clients'), icon: Building2 },
+            ],
+        },
+        {
+            title: t('finance'),
+            items: [
+                { href: '/dashboard/finance', label: t('financeHub'), icon: CreditCard },
+            ],
+        },
+        {
+            title: t('others'),
+            items: [
+                { href: '/dashboard/documents', label: t('documents'), icon: FileText },
+                { href: '/dashboard/academy', label: t('academy'), icon: GraduationCap },
+                { href: '/dashboard/reports', label: t('reports'), icon: BarChart3 },
+                { href: '/dashboard/settings', label: t('settings'), icon: Settings },
+            ],
+        },
+    ]
 
     return (
         <aside
@@ -85,7 +86,7 @@ export default function Sidebar({ user, collapsed = false }: SidebarProps) {
                     {!collapsed && (
                         <div>
                             <h1 className="font-bold text-sidebar-foreground">V-CORE</h1>
-                            <p className="text-xs text-muted-foreground">Admin Portal</p>
+                            <p className="text-xs text-muted-foreground">{t('adminPortal')}</p>
                         </div>
                     )}
                 </div>
@@ -169,12 +170,12 @@ export default function Sidebar({ user, collapsed = false }: SidebarProps) {
                                         type="submit"
                                     >
                                         <LogOut className="w-4 h-4" />
-                                        {!collapsed && <span className="ml-2">ออกจากระบบ</span>}
+                                        {!collapsed && <span className="ml-2">{t('logOut')}</span>}
                                     </Button>
                                 </TooltipTrigger>
                                 {collapsed && (
                                     <TooltipContent side="right">
-                                        <p>ออกจากระบบ</p>
+                                        <p>{t('logOut')}</p>
                                     </TooltipContent>
                                 )}
                             </Tooltip>
