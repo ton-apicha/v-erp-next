@@ -1,0 +1,27 @@
+# Development Dockerfile for V-ERP
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install dependencies first for caching
+COPY package*.json ./
+RUN npm install
+
+# Copy prisma schema
+COPY prisma ./prisma/
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Copy source (will be overwritten by volume mount)
+COPY . .
+
+# Create .next directory with proper permissions
+RUN mkdir -p .next && chown -R node:node .next
+
+# Switch to non-root user
+USER node
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]

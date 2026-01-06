@@ -1,0 +1,19 @@
+version: '3.8'
+
+# Docker Compose override for Development
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: npm run dev
+    environment:
+      NODE_ENV: development
+      NEXTAUTH_URL: http://localhost:3000
+    user: "node"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+      - /app/.next

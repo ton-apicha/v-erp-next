@@ -16,6 +16,7 @@ import {
     ChevronRight,
     LogOut,
     AlertTriangle,
+    UserCog,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -67,6 +68,7 @@ export default function Sidebar({ user, collapsed = false }: SidebarProps) {
                 { href: '/dashboard/documents', label: t('documents'), icon: FileText },
                 { href: '/dashboard/academy', label: t('academy'), icon: GraduationCap },
                 { href: '/dashboard/reports', label: t('reports'), icon: BarChart3 },
+                { href: '/dashboard/users', label: 'ผู้ใช้งาน', icon: UserCog },
                 { href: '/dashboard/settings', label: t('settings'), icon: Settings },
             ],
         },
