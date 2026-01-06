@@ -1,0 +1,111 @@
+{
+    "common": {
+        "appName": "V-ERP",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "create": "Create",
+        "search": "Search",
+        "filter": "Filter",
+        "export": "Export",
+        "import": "Import",
+        "loading": "Loading...",
+        "noData": "No data",
+        "confirm": "Confirm",
+        "back": "Back",
+        "next": "Next",
+        "previous": "Previous",
+        "actions": "Actions",
+        "status": "Status",
+        "date": "Date",
+        "all": "All",
+        "active": "Active",
+        "inactive": "Inactive"
+    },
+    "auth": {
+        "login": "Login",
+        "logout": "Logout",
+        "email": "Email",
+        "password": "Password",
+        "forgotPassword": "Forgot password?",
+        "loginFailed": "Invalid email or password"
+    },
+    "nav": {
+        "dashboard": "Dashboard",
+        "workers": "Workers",
+        "agents": "Agents",
+        "clients": "Clients",
+        "finance": "Finance",
+        "academy": "Academy",
+        "reports": "Reports",
+        "settings": "Settings"
+    },
+    "dashboard": {
+        "title": "Overview",
+        "totalWorkers": "Total Workers",
+        "activeWorkers": "Active Workers",
+        "pendingWorkers": "Pending",
+        "totalAgents": "Total Agents",
+        "totalClients": "Total Clients",
+        "todayRegistrations": "Today's Registrations",
+        "actionRequired": "Action Required",
+        "recentActivity": "Recent Activity"
+    },
+    "worker": {
+        "title": "Worker Management",
+        "create": "Add Worker",
+        "profile": "Personal Info",
+        "documents": "Documents",
+        "employment": "Employment History",
+        "financial": "Financial Info",
+        "status": {
+            "NEW_LEAD": "New Lead",
+            "SCREENING": "Screening",
+            "PROCESSING": "Processing",
+            "ACADEMY": "Training",
+            "READY": "Ready to Deploy",
+            "DEPLOYED": "Deployed",
+            "WORKING": "Working",
+            "COMPLETED": "Completed",
+            "TERMINATED": "Terminated",
+            "REJECTED": "Rejected"
+        }
+    },
+    "agent": {
+        "title": "Agent Management",
+        "create": "Add Agent",
+        "commission": "Commission",
+        "performance": "Performance",
+        "status": {
+            "PENDING": "Pending",
+            "ACTIVE": "Active",
+            "SUSPENDED": "Suspended",
+            "BANNED": "Banned"
+        }
+    },
+    "client": {
+        "title": "Client Management",
+        "create": "Add Client",
+        "orders": "Orders",
+        "workers": "Assigned Workers"
+    },
+    "finance": {
+        "title": "Financial Center",
+        "loans": "Loans",
+        "payments": "Payments",
+        "remittance": "Remittance",
+        "payroll": "Payroll Deduction"
+    },
+    "notification": {
+        "title": "Notifications",
+        "markRead": "Mark as read",
+        "markAllRead": "Mark all as read",
+        "noNotifications": "No notifications"
+    },
+    "sos": {
+        "alert": "Emergency Alert!",
+        "resolved": "Resolved",
+        "falseAlarm": "False Alarm"
+    }
+}

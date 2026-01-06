@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: v-erp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: verp_admin
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: v_erp
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - v-erp-network
+
+  # Redis (Cache & Queue)
+  redis:
+    image: redis:7-alpine
+    container_name: v-erp-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - v-erp-network
+
+  # MinIO (S3-compatible Object Storage)
+  minio:
+    image: minio/minio:latest
+    container_name: v-erp-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-verp_minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-verp_minio_secret}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - v-erp-network
+
+  # V-ERP Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: v-erp-app
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://verp_admin:${DB_PASSWORD}@postgres:5432/v_erp?schema=public
+      REDIS_URL: redis://redis:6379
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: "9000"
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-verp_minio}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-verp_minio_secret}
+      MINIO_BUCKET: ${MINIO_BUCKET:-v-erp-files}
+      NEXTAUTH_URL: https://v-erp.itd.in.th
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NODE_ENV: production
+      # i18n
+      DEFAULT_LOCALE: ${DEFAULT_LOCALE:-th}
+      # Nginx Proxy Configuration
+      VIRTUAL_HOST: v-erp.itd.in.th
+      VIRTUAL_PORT: 3000
+      LETSENCRYPT_HOST: v-erp.itd.in.th
+      LETSENCRYPT_EMAIL: admin@itd.in.th
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    expose:
+      - "3000"
+    networks:
+      - v-erp-network
+      - web-proxy
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+
+networks:
+  v-erp-network:
+    driver: bridge
+  web-proxy:
+    external: true

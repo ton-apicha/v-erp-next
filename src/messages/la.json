@@ -1,0 +1,111 @@
+{
+    "common": {
+        "appName": "V-ERP",
+        "save": "ບັນທຶກ",
+        "cancel": "ຍົກເລີກ",
+        "delete": "ລຶບ",
+        "edit": "ແກ້ໄຂ",
+        "create": "ສ້າງ",
+        "search": "ຄົ້ນຫາ",
+        "filter": "ກັ່ນຕອງ",
+        "export": "ສົ່ງອອກ",
+        "import": "ນຳເຂົ້າ",
+        "loading": "ກຳລັງໂຫລດ...",
+        "noData": "ບໍ່ມີຂໍ້ມູນ",
+        "confirm": "ຢືນຢັນ",
+        "back": "ກັບຄືນ",
+        "next": "ຕໍ່ໄປ",
+        "previous": "ກ່ອນໜ້າ",
+        "actions": "ການດຳເນີນການ",
+        "status": "ສະຖານະ",
+        "date": "ວັນທີ",
+        "all": "ທັງໝົດ",
+        "active": "ໃຊ້ງານ",
+        "inactive": "ບໍ່ໃຊ້ງານ"
+    },
+    "auth": {
+        "login": "ເຂົ້າສູ່ລະບົບ",
+        "logout": "ອອກຈາກລະບົບ",
+        "email": "ອີເມລ",
+        "password": "ລະຫັດຜ່ານ",
+        "forgotPassword": "ລືມລະຫັດຜ່ານ?",
+        "loginFailed": "ອີເມລ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ"
+    },
+    "nav": {
+        "dashboard": "ໜ້າຫຼັກ",
+        "workers": "ແຮງງານ",
+        "agents": "ຕົວແທນ",
+        "clients": "ນາຍຈ້າງ",
+        "finance": "ການເງິນ",
+        "academy": "ສູນຝຶກ",
+        "reports": "ລາຍງານ",
+        "settings": "ຕັ້ງຄ່າ"
+    },
+    "dashboard": {
+        "title": "ພາບລວມ",
+        "totalWorkers": "ແຮງງານທັງໝົດ",
+        "activeWorkers": "ກຳລັງເຮັດວຽກ",
+        "pendingWorkers": "ລໍຖ້າດຳເນີນການ",
+        "totalAgents": "ຕົວແທນທັງໝົດ",
+        "totalClients": "ນາຍຈ້າງທັງໝົດ",
+        "todayRegistrations": "ລົງທະບຽນມື້ນີ້",
+        "actionRequired": "ວຽກທີ່ຕ້ອງເຮັດ",
+        "recentActivity": "ກິດຈະກຳລ່າສຸດ"
+    },
+    "worker": {
+        "title": "ຈັດການແຮງງານ",
+        "create": "ເພີ່ມແຮງງານ",
+        "profile": "ຂໍ້ມູນສ່ວນຕົວ",
+        "documents": "ເອກະສານ",
+        "employment": "ປະຫວັດການເຮັດວຽກ",
+        "financial": "ຂໍ້ມູນການເງິນ",
+        "status": {
+            "NEW_LEAD": "ລາຍຊື່ໃໝ່",
+            "SCREENING": "ລໍຖ້າກວດສອບ",
+            "PROCESSING": "ກຳລັງດຳເນີນການ",
+            "ACADEMY": "ຝຶກອົບຮົມ",
+            "READY": "ພ້ອມສົ່ງຕົວ",
+            "DEPLOYED": "ສົ່ງຕົວແລ້ວ",
+            "WORKING": "ກຳລັງເຮັດວຽກ",
+            "COMPLETED": "ສິ້ນສຸດສັນຍາ",
+            "TERMINATED": "ເລີກຈ້າງ",
+            "REJECTED": "ປະຕິເສດ"
+        }
+    },
+    "agent": {
+        "title": "ຈັດການຕົວແທນ",
+        "create": "ເພີ່ມຕົວແທນ",
+        "commission": "ຄ່າຄອມມິດຊັ່ນ",
+        "performance": "ປະສິດທິພາບ",
+        "status": {
+            "PENDING": "ລໍຖ້າອະນຸມັດ",
+            "ACTIVE": "ໃຊ້ງານ",
+            "SUSPENDED": "ລະງັບ",
+            "BANNED": "ແບນ"
+        }
+    },
+    "client": {
+        "title": "ຈັດການນາຍຈ້າງ",
+        "create": "ເພີ່ມນາຍຈ້າງ",
+        "orders": "ຄຳສັ່ງຈ້າງ",
+        "workers": "ແຮງງານໃນສັງກັດ"
+    },
+    "finance": {
+        "title": "ສູນການເງິນ",
+        "loans": "ສິນເຊື່ອ",
+        "payments": "ການຊຳລະເງິນ",
+        "remittance": "ໂອນເງິນ",
+        "payroll": "ຕັດເງິນເດືອນ"
+    },
+    "notification": {
+        "title": "ການແຈ້ງເຕືອນ",
+        "markRead": "ອ່ານແລ້ວ",
+        "markAllRead": "ອ່ານທັງໝົດແລ້ວ",
+        "noNotifications": "ບໍ່ມີການແຈ້ງເຕືອນ"
+    },
+    "sos": {
+        "alert": "ແຈ້ງເຕືອນສຸກເສີນ!",
+        "resolved": "ແກ້ໄຂແລ້ວ",
+        "falseAlarm": "ເຕືອນຜິດພາດ"
+    }
+}

@@ -1,0 +1,198 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Sky Blue Theme */
+    --background: 0 0% 100%;
+    --foreground: 210 40% 11%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 210 40% 11%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 40% 11%;
+    
+    /* Sky Blue Primary */
+    --primary: 199 89% 48%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 210 40% 11%;
+    
+    --muted: 210 40% 96%;
+    --muted-foreground: 210 20% 45%;
+    
+    --accent: 210 40% 96%;
+    --accent-foreground: 210 40% 11%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 210 31% 91%;
+    --input: 210 31% 91%;
+    --ring: 199 89% 48%;
+    
+    /* Chart colors */
+    --chart-1: 199 89% 48%;
+    --chart-2: 160 84% 39%;
+    --chart-3: 43 96% 56%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    
+    --radius: 0.5rem;
+    
+    /* Sidebar colors */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 210 40% 11%;
+    --sidebar-primary: 199 89% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 210 40% 11%;
+    --sidebar-border: 210 31% 91%;
+    --sidebar-ring: 199 89% 48%;
+  }
+
+  .dark {
+    --background: 210 40% 11%;
+    --foreground: 210 40% 98%;
+    
+    --card: 210 40% 14%;
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 210 40% 14%;
+    --popover-foreground: 210 40% 98%;
+    
+    /* Sky Blue Primary (bright in dark mode) */
+    --primary: 199 89% 56%;
+    --primary-foreground: 210 40% 11%;
+    
+    --secondary: 210 40% 20%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 210 40% 20%;
+    --muted-foreground: 210 20% 55%;
+    
+    --accent: 210 40% 20%;
+    --accent-foreground: 210 40% 98%;
+    
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 210 40% 20%;
+    --input: 210 40% 20%;
+    --ring: 199 89% 56%;
+    
+    /* Dark mode charts */
+    --chart-1: 199 89% 56%;
+    --chart-2: 160 84% 46%;
+    --chart-3: 43 96% 60%;
+    --chart-4: 280 65% 65%;
+    --chart-5: 340 75% 60%;
+    
+    /* Sidebar dark */
+    --sidebar-background: 210 40% 14%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 199 89% 56%;
+    --sidebar-primary-foreground: 210 40% 11%;
+    --sidebar-accent: 210 40% 20%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 210 40% 20%;
+    --sidebar-ring: 199 89% 56%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Card Component */
+  .card {
+    @apply bg-white rounded-xl shadow-xl border border-slate-100 p-6;
+  }
+
+  /* Input Component */
+  .input {
+    @apply w-full px-4 py-3 border border-slate-300 rounded-lg bg-white text-slate-900;
+    @apply placeholder:text-slate-400;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+    @apply transition-all duration-200;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-50;
+  }
+
+  /* Button Base */
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary/90;
+    @apply focus:ring-primary;
+    @apply shadow-md hover:shadow-lg;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+    @apply focus:ring-secondary;
+  }
+
+  .btn-outline {
+    @apply border-2 border-slate-300 bg-transparent text-slate-700;
+    @apply hover:bg-slate-50 hover:border-slate-400;
+    @apply focus:ring-slate-300;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-slate-700 hover:bg-slate-100;
+    @apply focus:ring-slate-300;
+  }
+
+  .btn-destructive {
+    @apply bg-red-500 text-white hover:bg-red-600;
+    @apply focus:ring-red-500;
+  }
+
+  /* Legacy classes for backwards compatibility */
+  .legacy-card {
+    @apply bg-card rounded-lg shadow-sm border border-border p-6;
+  }
+
+  .legacy-input {
+    @apply w-full px-3 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring;
+  }
+}
+
+/* Custom scrollbar */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted)) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+  }
+}

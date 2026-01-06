@@ -1,0 +1,111 @@
+{
+    "common": {
+        "appName": "V-ERP",
+        "save": "บันทึก",
+        "cancel": "ยกเลิก",
+        "delete": "ลบ",
+        "edit": "แก้ไข",
+        "create": "สร้าง",
+        "search": "ค้นหา",
+        "filter": "กรอง",
+        "export": "ส่งออก",
+        "import": "นำเข้า",
+        "loading": "กำลังโหลด...",
+        "noData": "ไม่มีข้อมูล",
+        "confirm": "ยืนยัน",
+        "back": "กลับ",
+        "next": "ถัดไป",
+        "previous": "ก่อนหน้า",
+        "actions": "การดำเนินการ",
+        "status": "สถานะ",
+        "date": "วันที่",
+        "all": "ทั้งหมด",
+        "active": "ใช้งาน",
+        "inactive": "ไม่ใช้งาน"
+    },
+    "auth": {
+        "login": "เข้าสู่ระบบ",
+        "logout": "ออกจากระบบ",
+        "email": "อีเมล",
+        "password": "รหัสผ่าน",
+        "forgotPassword": "ลืมรหัสผ่าน?",
+        "loginFailed": "อีเมลหรือรหัสผ่านไม่ถูกต้อง"
+    },
+    "nav": {
+        "dashboard": "แดชบอร์ด",
+        "workers": "แรงงาน",
+        "agents": "ตัวแทน",
+        "clients": "นายจ้าง",
+        "finance": "การเงิน",
+        "academy": "ศูนย์ฝึก",
+        "reports": "รายงาน",
+        "settings": "ตั้งค่า"
+    },
+    "dashboard": {
+        "title": "ภาพรวม",
+        "totalWorkers": "แรงงานทั้งหมด",
+        "activeWorkers": "กำลังทำงาน",
+        "pendingWorkers": "รอดำเนินการ",
+        "totalAgents": "ตัวแทนทั้งหมด",
+        "totalClients": "นายจ้างทั้งหมด",
+        "todayRegistrations": "ลงทะเบียนวันนี้",
+        "actionRequired": "งานที่ต้องทำ",
+        "recentActivity": "กิจกรรมล่าสุด"
+    },
+    "worker": {
+        "title": "จัดการแรงงาน",
+        "create": "เพิ่มแรงงาน",
+        "profile": "ข้อมูลส่วนตัว",
+        "documents": "เอกสาร",
+        "employment": "ประวัติการทำงาน",
+        "financial": "ข้อมูลการเงิน",
+        "status": {
+            "NEW_LEAD": "รายชื่อใหม่",
+            "SCREENING": "รอตรวจสอบ",
+            "PROCESSING": "กำลังดำเนินการ",
+            "ACADEMY": "ฝึกอบรม",
+            "READY": "พร้อมส่งตัว",
+            "DEPLOYED": "ส่งตัวแล้ว",
+            "WORKING": "กำลังทำงาน",
+            "COMPLETED": "สิ้นสุดสัญญา",
+            "TERMINATED": "เลิกจ้าง",
+            "REJECTED": "ปฏิเสธ"
+        }
+    },
+    "agent": {
+        "title": "จัดการตัวแทน",
+        "create": "เพิ่มตัวแทน",
+        "commission": "ค่าคอมมิชชั่น",
+        "performance": "ประสิทธิภาพ",
+        "status": {
+            "PENDING": "รออนุมัติ",
+            "ACTIVE": "ใช้งาน",
+            "SUSPENDED": "ระงับ",
+            "BANNED": "แบน"
+        }
+    },
+    "client": {
+        "title": "จัดการนายจ้าง",
+        "create": "เพิ่มนายจ้าง",
+        "orders": "คำสั่งจ้าง",
+        "workers": "แรงงานในสังกัด"
+    },
+    "finance": {
+        "title": "ศูนย์การเงิน",
+        "loans": "สินเชื่อ",
+        "payments": "การชำระเงิน",
+        "remittance": "โอนเงิน",
+        "payroll": "ตัดเงินเดือน"
+    },
+    "notification": {
+        "title": "การแจ้งเตือน",
+        "markRead": "อ่านแล้ว",
+        "markAllRead": "อ่านทั้งหมดแล้ว",
+        "noNotifications": "ไม่มีการแจ้งเตือน"
+    },
+    "sos": {
+        "alert": "แจ้งเตือนฉุกเฉิน!",
+        "resolved": "แก้ไขแล้ว",
+        "falseAlarm": "เตือนผิดพลาด"
+    }
+}
