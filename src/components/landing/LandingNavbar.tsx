@@ -25,7 +25,7 @@ export function LandingNavbar() {
     }, [])
 
     const switchLocale = (newLocale: string) => {
-        router.replace(pathname, { locale: newLocale })
+        router.replace(pathname, { locale: newLocale as any })
     }
 
     return (
