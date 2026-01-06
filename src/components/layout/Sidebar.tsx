@@ -180,6 +180,11 @@ export default function Sidebar({ user, collapsed = false }: SidebarProps) {
                             </Tooltip>
                         </TooltipProvider>
                     </form>
+                    {!collapsed && (
+                        <div className="mt-2 text-center">
+                            <p className="text-[10px] text-muted-foreground/50">v1.1.0</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </aside>
