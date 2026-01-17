@@ -39,43 +39,43 @@ export default async function CmsDashboard({
 
     const stats = [
         {
-            label: locale === 'la' ? 'ໜ້າເວັບ' : 'Pages',
+            label: locale === 'la' ? 'ໜ້າເວັບ' : 'หน้าเว็บ',
             value: pagesCount,
             icon: FileText,
             color: 'bg-blue-500',
             href: '/admin/cms/pages'
         },
         {
-            label: locale === 'la' ? 'ບົດຄວາມ' : 'Blog Posts',
+            label: locale === 'la' ? 'ບົດຄວາມ' : 'บทความ',
             value: postsCount,
-            subValue: `${publishedPosts} published`,
+            subValue: locale === 'la' ? `${publishedPosts} ເຜີຍແຜ່` : `${publishedPosts} เผยแพร่`,
             icon: Newspaper,
             color: 'bg-green-500',
             href: '/admin/cms/blog'
         },
         {
-            label: locale === 'la' ? 'ສື່ມີເດຍ' : 'Media Files',
+            label: locale === 'la' ? 'ສື່ມີເດຍ' : 'สื่อ/รูปภาพ',
             value: mediaCount,
             icon: Image,
             color: 'bg-purple-500',
             href: '/admin/cms/media'
         },
         {
-            label: 'FAQs',
+            label: locale === 'la' ? 'ຄຳຖາມທີ່ພົບເລື້ອຍ' : 'คำถามที่พบบ่อย',
             value: faqCount,
             icon: HelpCircle,
             color: 'bg-amber-500',
             href: '/admin/cms/faq'
         },
         {
-            label: locale === 'la' ? 'ພາດເນີ' : 'Partners',
+            label: locale === 'la' ? 'ພາດເນີ' : 'พาร์ทเนอร์',
             value: partnersCount,
             icon: Users,
             color: 'bg-cyan-500',
             href: '/admin/cms/partners'
         },
         {
-            label: locale === 'la' ? 'ນິຄົມ' : 'Industrial Estates',
+            label: locale === 'la' ? 'ນິຄົມອຸດສາຫະກຳ' : 'นิคมอุตสาหกรรม',
             value: estatesCount,
             icon: Factory,
             color: 'bg-rose-500',
@@ -88,12 +88,12 @@ export default async function CmsDashboard({
             {/* Header */}
             <div>
                 <h1 className="text-3xl font-bold text-slate-900">
-                    {locale === 'la' ? 'CMS ແດດບອດ' : 'CMS Dashboard'}
+                    {locale === 'la' ? 'CMS ແດດບອດ' : 'CMS แดชบอร์ด'}
                 </h1>
                 <p className="text-slate-600 mt-1">
                     {locale === 'la'
                         ? 'ຈັດການເນື້ອຫາ Landing Page ຂອງ V-GROUP'
-                        : 'Manage V-GROUP Landing Page Content'
+                        : 'จัดการเนื้อหา Landing Page ของ V-GROUP'
                     }
                 </p>
             </div>
@@ -125,7 +125,7 @@ export default async function CmsDashboard({
             {/* Quick Actions */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                 <h2 className="text-lg font-semibold text-slate-900 mb-4">
-                    {locale === 'la' ? 'ການດຳເນີນການດ່ວນ' : 'Quick Actions'}
+                    {locale === 'la' ? 'ການດຳເນີນການດ່ວນ' : 'ดำเนินการด่วน'}
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <Link
@@ -134,7 +134,7 @@ export default async function CmsDashboard({
                     >
                         <Newspaper className="w-5 h-5" />
                         <span className="text-sm font-medium">
-                            {locale === 'la' ? 'ບົດຄວາມໃໝ່' : 'New Post'}
+                            {locale === 'la' ? 'ບົດຄວາມໃໝ່' : 'บทความใหม่'}
                         </span>
                     </Link>
                     <Link
@@ -143,7 +143,7 @@ export default async function CmsDashboard({
                     >
                         <Image className="w-5 h-5" />
                         <span className="text-sm font-medium">
-                            {locale === 'la' ? 'ອັບໂຫຼດ' : 'Upload Media'}
+                            {locale === 'la' ? 'ອັບໂຫຼດ' : 'อัปโหลดสื่อ'}
                         </span>
                     </Link>
                     <Link
@@ -152,7 +152,7 @@ export default async function CmsDashboard({
                     >
                         <HelpCircle className="w-5 h-5" />
                         <span className="text-sm font-medium">
-                            {locale === 'la' ? 'ເພີ່ມ FAQ' : 'Add FAQ'}
+                            {locale === 'la' ? 'ເພີ່ມ FAQ' : 'เพิ่มคำถาม'}
                         </span>
                     </Link>
                     <a
@@ -162,7 +162,7 @@ export default async function CmsDashboard({
                     >
                         <Eye className="w-5 h-5" />
                         <span className="text-sm font-medium">
-                            {locale === 'la' ? 'ເບິ່ງເວັບ' : 'View Site'}
+                            {locale === 'la' ? 'ເບິ່ງເວັບ' : 'ดูเว็บไซต์'}
                         </span>
                     </a>
                 </div>

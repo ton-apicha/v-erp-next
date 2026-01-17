@@ -70,11 +70,11 @@ export default function BlogListPage({
     )
 
     const categories = [
-        { value: '', label: 'All' },
-        { value: 'news', label: 'News' },
-        { value: 'law', label: 'Law' },
-        { value: 'tech', label: 'Tech' },
-        { value: 'tips', label: 'Tips' },
+        { value: '', labelTH: 'ทั้งหมด', labelLA: 'ທັງໝົດ' },
+        { value: 'news', labelTH: 'ข่าวสาร', labelLA: 'ຂ່າວ' },
+        { value: 'law', labelTH: 'กฎหมาย', labelLA: 'ກົດໝາຍ' },
+        { value: 'tech', labelTH: 'เทคโนโลยี', labelLA: 'ເທັກໂນໂລຢີ' },
+        { value: 'tips', labelTH: 'เคล็ดลับ', labelLA: 'ຄຳແນະນຳ' },
     ]
 
     return (
@@ -83,10 +83,10 @@ export default function BlogListPage({
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900">
-                        {locale === 'la' ? 'ບົດຄວາມ' : 'Blog Posts'}
+                        {locale === 'la' ? 'ບົດຄວາມ' : 'บทความ'}
                     </h1>
                     <p className="text-slate-600 text-sm mt-1">
-                        {locale === 'la' ? 'ຈັດການບົດຄວາມແລະຂ່າວ' : 'Manage blog posts and news articles'}
+                        {locale === 'la' ? 'ຈັດການບົດຄວາມແລະຂ່າວ' : 'จัดการบทความและข่าวสาร'}
                     </p>
                 </div>
                 <Link
@@ -94,7 +94,7 @@ export default function BlogListPage({
                     className="flex items-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-xl font-medium transition-colors"
                 >
                     <Plus className="w-5 h-5" />
-                    {locale === 'la' ? 'ສ້າງໃໝ່' : 'New Post'}
+                    {locale === 'la' ? 'ສ້າງໃໝ່' : 'สร้างใหม่'}
                 </Link>
             </div>
 
@@ -104,7 +104,7 @@ export default function BlogListPage({
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                     <input
                         type="text"
-                        placeholder={locale === 'la' ? 'ຄົ້ນຫາ...' : 'Search posts...'}
+                        placeholder={locale === 'la' ? 'ຄົ້ນຫາ...' : 'ค้นหาบทความ...'}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
@@ -116,7 +116,9 @@ export default function BlogListPage({
                     className="px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-500"
                 >
                     {categories.map(cat => (
-                        <option key={cat.value} value={cat.value}>{cat.label}</option>
+                        <option key={cat.value} value={cat.value}>
+                            {locale === 'la' ? cat.labelLA : cat.labelTH}
+                        </option>
                     ))}
                 </select>
             </div>
@@ -129,26 +131,26 @@ export default function BlogListPage({
                     </div>
                 ) : filteredPosts.length === 0 ? (
                     <div className="text-center py-12 text-slate-500">
-                        <p>{locale === 'la' ? 'ບໍ່ມີບົດຄວາມ' : 'No posts found'}</p>
+                        <p>{locale === 'la' ? 'ບໍ່ມີບົດຄວາມ' : 'ไม่พบบทความ'}</p>
                     </div>
                 ) : (
                     <table className="w-full">
                         <thead className="bg-slate-50 border-b border-slate-200">
                             <tr>
                                 <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">
-                                    {locale === 'la' ? 'ຫົວຂໍ້' : 'Title'}
+                                    {locale === 'la' ? 'ຫົວຂໍ້' : 'หัวข้อ'}
                                 </th>
                                 <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">
-                                    {locale === 'la' ? 'ໝວດໝູ່' : 'Category'}
+                                    {locale === 'la' ? 'ໝວດໝູ່' : 'หมวดหมู่'}
                                 </th>
                                 <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">
-                                    {locale === 'la' ? 'ສະຖານະ' : 'Status'}
+                                    {locale === 'la' ? 'ສະຖານະ' : 'สถานะ'}
                                 </th>
                                 <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">
-                                    Views
+                                    {locale === 'la' ? 'ການເບິ່ງ' : 'การดู'}
                                 </th>
                                 <th className="text-right px-6 py-4 text-sm font-semibold text-slate-600">
-                                    Actions
+                                    {locale === 'la' ? 'ການດຳເນີນການ' : 'ดำเนินการ'}
                                 </th>
                             </tr>
                         </thead>
@@ -170,12 +172,12 @@ export default function BlogListPage({
                                         {post.isPublished ? (
                                             <span className="flex items-center gap-1 text-green-600 text-sm">
                                                 <Eye className="w-4 h-4" />
-                                                Published
+                                                {locale === 'la' ? 'ເຜີຍແຜ່ແລ້ວ' : 'เผยแพร่แล้ว'}
                                             </span>
                                         ) : (
                                             <span className="flex items-center gap-1 text-slate-400 text-sm">
                                                 <EyeOff className="w-4 h-4" />
-                                                Draft
+                                                {locale === 'la' ? 'ແບບຮ່າງ' : 'แบบร่าง'}
                                             </span>
                                         )}
                                     </td>
