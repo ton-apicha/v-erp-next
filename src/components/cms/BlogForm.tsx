@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Link } from '@/i18n/routing'
 import { ArrowLeft, Loader2, Save, Eye, Globe } from 'lucide-react'
+import { RichTextEditor } from './RichTextEditor'
 
 interface BlogFormProps {
     locale: string
@@ -141,8 +142,8 @@ export function BlogForm({ locale, slug, initialData }: BlogFormProps) {
                                 type="button"
                                 onClick={() => setActiveTab('th')}
                                 className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 font-medium transition-colors ${activeTab === 'th'
-                                        ? 'bg-cyan-50 text-cyan-700 border-b-2 border-cyan-500'
-                                        : 'text-slate-500 hover:bg-slate-50'
+                                    ? 'bg-cyan-50 text-cyan-700 border-b-2 border-cyan-500'
+                                    : 'text-slate-500 hover:bg-slate-50'
                                     }`}
                             >
                                 🇹🇭 {texts.thaiContent} {texts.required}
@@ -151,8 +152,8 @@ export function BlogForm({ locale, slug, initialData }: BlogFormProps) {
                                 type="button"
                                 onClick={() => setActiveTab('la')}
                                 className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 font-medium transition-colors ${activeTab === 'la'
-                                        ? 'bg-cyan-50 text-cyan-700 border-b-2 border-cyan-500'
-                                        : 'text-slate-500 hover:bg-slate-50'
+                                    ? 'bg-cyan-50 text-cyan-700 border-b-2 border-cyan-500'
+                                    : 'text-slate-500 hover:bg-slate-50'
                                     }`}
                             >
                                 🇱🇦 {texts.laoContent} {texts.optional}
@@ -190,14 +191,11 @@ export function BlogForm({ locale, slug, initialData }: BlogFormProps) {
                                         <label className="block text-sm font-medium text-slate-700 mb-2">
                                             {texts.content} (ไทย) *
                                         </label>
-                                        <textarea
-                                            rows={15}
-                                            value={formData.contentTH}
-                                            onChange={(e) => setFormData({ ...formData, contentTH: e.target.value })}
-                                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-500 font-mono text-sm"
-                                            placeholder="เนื้อหาบทความภาษาไทย (รองรับ Markdown)"
+                                        <RichTextEditor
+                                            content={formData.contentTH}
+                                            onChange={(html) => setFormData({ ...formData, contentTH: html })}
+                                            placeholder="เขียนเนื้อหาบทความภาษาไทย..."
                                         />
-                                        <p className="text-xs text-slate-400 mt-1">รองรับ Markdown formatting</p>
                                     </div>
                                 </>
                             ) : (
@@ -230,12 +228,10 @@ export function BlogForm({ locale, slug, initialData }: BlogFormProps) {
                                         <label className="block text-sm font-medium text-slate-700 mb-2">
                                             {texts.content} (ລາວ)
                                         </label>
-                                        <textarea
-                                            rows={15}
-                                            value={formData.contentLA}
-                                            onChange={(e) => setFormData({ ...formData, contentLA: e.target.value })}
-                                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-500 font-mono text-sm"
-                                            placeholder="ເນື້ອຫາບົດຄວາມພາສາລາວ"
+                                        <RichTextEditor
+                                            content={formData.contentLA}
+                                            onChange={(html) => setFormData({ ...formData, contentLA: html })}
+                                            placeholder="ຂຽນເນື້ອຫາບົດຄວາມພາສາລາວ..."
                                         />
                                     </div>
                                 </>
