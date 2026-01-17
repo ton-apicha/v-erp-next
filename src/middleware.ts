@@ -4,6 +4,6 @@ import { routing } from './i18n/routing';
 export default createMiddleware(routing);
 
 export const config = {
-    // Match only internationalized pathnames
-    matcher: ['/', '/(th|en|la)/:path*']
+    // Match only Thai and Lao pathnames
+    matcher: ['/', '/(th|la)/:path*']
 };

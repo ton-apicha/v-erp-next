@@ -5,21 +5,40 @@ import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { cn } from '@/lib/utils'
 
+// =========================================
+// Types
+// =========================================
+
+interface UserRole {
+    id: string
+    name: string
+    displayName: string
+    displayNameLA?: string | null
+    companyAccess: string[]
+}
+
+interface DashboardUser {
+    name: string
+    email: string
+    role: UserRole
+    permissions: string[]
+    image?: string
+}
+
 interface DashboardShellProps {
     children: React.ReactNode
-    user: {
-        name: string
-        email: string
-        role: string
-        image?: string
-    }
+    user: DashboardUser
 }
+
+// =========================================
+// Component
+// =========================================
 
 export default function DashboardShell({ children, user }: DashboardShellProps) {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-gray-50">
             {/* Sidebar */}
             <Sidebar user={user} collapsed={sidebarCollapsed} />
 
@@ -38,7 +57,7 @@ export default function DashboardShell({ children, user }: DashboardShellProps) 
                 />
 
                 {/* Page Content */}
-                <main className="p-6">
+                <main>
                     {children}
                 </main>
             </div>

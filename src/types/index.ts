@@ -1,74 +1,45 @@
-import { User, Worker, Agent, Client } from '@prisma/client'
+import { User, Worker, Client, Partner } from '@prisma/client'
+
+// NextAuth types are declared in src/lib/auth.ts
+// Do not redeclare here to avoid conflicts
 
 // ==============================================
-// NextAuth Session Types
+// User Role Type (now a relation, not enum)
 // ==============================================
-declare module 'next-auth' {
-    interface Session {
-        user: {
-            id: string
-            email: string
-            name: string
-            role: UserRole
-        }
-    }
-
-    interface User {
-        id: string
-        email: string
-        name: string
-        role: UserRole
-    }
+export interface UserRole {
+    id: string
+    name: string
+    displayName: string
+    displayNameLA: string | null
+    companyAccess: string[]
 }
-
-declare module 'next-auth/jwt' {
-    interface JWT {
-        id: string
-        role: UserRole
-    }
-}
-
-// ==============================================
-// User Role Type (matches Prisma enum)
-// ==============================================
-export type UserRole =
-    | 'SUPER_ADMIN'
-    | 'MANAGER'
-    | 'OPERATION'
-    | 'FINANCE'
-    | 'STAFF'
-    | 'VIEWER'
 
 // ==============================================
 // Worker Types (matches Prisma enum)
 // ==============================================
 export type WorkerWithRelations = Worker & {
     createdBy: Pick<User, 'name'>
-    agent: Pick<Agent, 'companyName'> | null
+    partner: Pick<Partner, 'name'> | null
     client: Pick<Client, 'companyName'> | null
 }
 
 export type WorkerStatus =
-    | 'NEW_LEAD'      // รายชื่อดิบ
-    | 'SCREENING'     // รอตรวจโรค/ประวัติ
-    | 'PROCESSING'    // กำลังยื่นเอกสาร
-    | 'ACADEMY'       // เข้าค่ายฝึก
+    | 'PENDING'       // รอดำเนินการ
+    | 'TRAINING'      // กำลังฝึกอบรม
     | 'READY'         // พร้อมส่งตัว
     | 'DEPLOYED'      // ส่งถึงโรงงานแล้ว
-    | 'WORKING'       // กำลังทำงาน
-    | 'COMPLETED'     // สิ้นสุดสัญญา
+    | 'INACTIVE'      // ไม่ได้ใช้งาน
     | 'TERMINATED'    // เลิกจ้าง
-    | 'REJECTED'      // ปฏิเสธ
 
 export type Gender = 'MALE' | 'FEMALE' | 'OTHER'
 export type SkillLevel = 'BASIC' | 'INTERMEDIATE' | 'ADVANCED' | 'PREMIUM'
 
 // ==============================================
-// Agent Types
+// Partner Types (replaces Agent)
 // ==============================================
-export type AgentStatus = 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'BANNED'
+export type PartnerType = 'INDIVIDUAL' | 'COMPANY' | 'AGENCY'
 
-export type AgentWithStats = Agent & {
+export type PartnerWithStats = Partner & {
     createdBy: Pick<User, 'name'>
     _count: {
         workers: number
@@ -110,18 +81,11 @@ export interface PaginatedResponse<T> {
 export interface WorkerFormData {
     firstNameTH: string
     lastNameTH: string
-    firstNameEN?: string
-    lastNameEN?: string
-    firstNameLA?: string
-    lastNameLA?: string
     nickname?: string
     gender: Gender
-    dateOfBirth: Date
+    birthDate: Date
     nationality?: string
-    religion?: string
     phoneNumber?: string
-    email?: string
-    lineId?: string
     address?: string
     emergencyName?: string
     emergencyPhone?: string
@@ -131,22 +95,19 @@ export interface WorkerFormData {
     workPermitNo?: string
 }
 
-export interface AgentFormData {
-    companyName: string
+export interface PartnerFormData {
+    name: string
     contactPerson: string
     phoneNumber: string
     email?: string
     address?: string
     province?: string
     district?: string
-    taxId?: string
-    commissionRate?: number
-    tier?: number
+    notes?: string
 }
 
 export interface ClientFormData {
     companyName: string
-    companyNameEN?: string
     contactPerson: string
     phoneNumber: string
     email?: string
@@ -155,5 +116,4 @@ export interface ClientFormData {
     industry?: string
     employeeCount?: number
     creditLimit?: number
-    mouQuotaTotal?: number
 }

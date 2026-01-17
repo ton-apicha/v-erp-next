@@ -29,7 +29,6 @@ export default async function ClientsPage(props: {
         where.OR = [
             { clientId: { contains: searchParams.search, mode: 'insensitive' } },
             { companyName: { contains: searchParams.search, mode: 'insensitive' } },
-            { companyNameEN: { contains: searchParams.search, mode: 'insensitive' } },
             { contactPerson: { contains: searchParams.search, mode: 'insensitive' } },
         ]
     }
@@ -142,16 +141,11 @@ export default async function ClientsPage(props: {
                                     <div className="flex items-start gap-4">
                                         <Avatar className="h-12 w-12">
                                             <AvatarFallback className="bg-blue-100 text-blue-600 font-bold">
-                                                {client.companyName.slice(0, 2).toUpperCase()}
+                                                {(client.companyName || client.personName || 'N/A').slice(0, 2).toUpperCase()}
                                             </AvatarFallback>
                                         </Avatar>
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="font-bold truncate">{client.companyName}</h3>
-                                            {client.companyNameEN && (
-                                                <p className="text-sm text-muted-foreground truncate">
-                                                    {client.companyNameEN}
-                                                </p>
-                                            )}
+                                            <h3 className="font-bold truncate">{client.companyName || client.personName}</h3>
                                             <p className="text-xs text-muted-foreground font-mono">
                                                 {client.clientId}
                                             </p>

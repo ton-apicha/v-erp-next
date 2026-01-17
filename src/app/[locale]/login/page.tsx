@@ -2,9 +2,9 @@
 
 import { signIn } from 'next-auth/react'
 import { useState, FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/routing'
 import { LogIn, Loader2, KeyRound, Mail, Lock, ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 
 export default function LoginPage() {
     const router = useRouter()

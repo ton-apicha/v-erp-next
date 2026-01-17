@@ -18,9 +18,9 @@ export default async function DashboardPage() {
     const t = await getTranslations('Dashboard')
 
     // Get statistics
-    const [workerCount, agentCount, clientCount] = await Promise.all([
+    const [workerCount, partnerCount, clientCount] = await Promise.all([
         prisma.worker.count(),
-        prisma.agent.count(),
+        prisma.partner.count(),
         prisma.client.count(),
     ])
 
@@ -51,8 +51,8 @@ export default async function DashboardPage() {
                     color="bg-blue-500"
                 />
                 <StatCard
-                    title={t('stats.agents')}
-                    value={agentCount}
+                    title={t('stats.partners')}
+                    value={partnerCount}
                     icon={<Handshake className="w-8 h-8 text-white" />}
                     color="bg-green-500"
                 />
@@ -75,9 +75,9 @@ export default async function DashboardPage() {
                             title={t('quickActions.addWorker')}
                         />
                         <QuickAction
-                            href="/dashboard/agents/new"
+                            href="/dashboard/partners/new"
                             icon={<Handshake className="w-6 h-6" />}
-                            title={t('quickActions.addAgent')}
+                            title={t('quickActions.addPartner')}
                         />
                         <QuickAction
                             href="/dashboard/clients/new"

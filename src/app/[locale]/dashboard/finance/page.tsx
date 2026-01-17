@@ -1,31 +1,31 @@
+// =====================================================
+// Finance Dashboard - Simplified Version
+// Commission/PayrollFile models are being redesigned
+// =====================================================
+
 import { prisma } from '@/lib/db'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
+import FinanceCharts from '@/components/dashboard/FinanceCharts'
 import {
   CreditCard,
   DollarSign,
-  TrendingUp,
-  Users,
-  FileSpreadsheet,
   AlertTriangle,
-  ArrowUpRight,
   ArrowDownRight,
   Wallet,
-  Search,
   Plus,
 } from 'lucide-react'
 
 export default async function FinancePage() {
   const session = await getServerSession(authOptions)
 
-  // Get loan statistics
+  // Get loan statistics (Loan model still exists)
   const loans = await prisma.loan.findMany({
     where: { status: { not: 'CANCELLED' } },
     include: {
@@ -56,34 +56,13 @@ export default async function FinancePage() {
     },
   })
 
-  // Get pending commissions
-  const pendingCommissions = await prisma.commission.findMany({
-    where: { status: 'PENDING' },
-    include: {
-      agent: { select: { agentId: true, companyName: true } },
-    },
-    take: 5,
-    orderBy: { createdAt: 'desc' },
-  })
-
-  const totalPendingCommission = pendingCommissions.reduce(
-    (sum, c) => sum + Number(c.amount || 0),
-    0
-  )
-
-  // Get payroll files
-  const recentPayrollFiles = await prisma.payrollFile.findMany({
-    take: 3,
-    orderBy: { createdAt: 'desc' },
-  })
-
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">ศูนย์การเงิน</h1>
-          <p className="text-muted-foreground">จัดการเงินกู้ ชำระเงิน และค่าคอมมิชชั่น</p>
+          <p className="text-muted-foreground">จัดการเงินกู้และชำระเงิน</p>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/dashboard/finance/loans/new">
@@ -132,38 +111,37 @@ export default async function FinancePage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              ค่าคอมมิชชั่นรออนุมัติ
+            <CardTitle className="text-sm font-medium text-amber-600 flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4" />
+              ค่าคอมมิชชั่น
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">
-              ฿{totalPendingCommission.toLocaleString()}
+            <div className="text-sm text-muted-foreground">
+              อยู่ระหว่างการพัฒนา
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {pendingCommissions.length} รายการ
-            </p>
+            <Link href="/dashboard/finance/commissions">
+              <Button variant="link" size="sm" className="px-0">ดูรายละเอียด</Button>
+            </Link>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <FileSpreadsheet className="h-4 w-4" />
-              Payroll Files
+              <DollarSign className="h-4 w-4" />
+              ชำระแล้ว
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{recentPayrollFiles.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              ล่าสุด: {recentPayrollFiles[0]
-                ? format(new Date(recentPayrollFiles[0].createdAt), 'dd/MM/yyyy')
-                : '-'}
-            </p>
+            <div className="text-2xl font-bold text-green-600">{loanStats.paidOff}</div>
+            <p className="text-xs text-muted-foreground mt-1">รายการ</p>
           </CardContent>
         </Card>
       </div>
+
+      {/* Charts Section */}
+      <FinanceCharts loanStats={loanStats} />
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Loans Section */}
@@ -275,60 +253,6 @@ export default async function FinancePage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Commissions */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-lg">ค่าคอมมิชชั่นรออนุมัติ</CardTitle>
-              <CardDescription>ค่าคอมมิชชั่นตัวแทนที่รอดำเนินการ</CardDescription>
-            </div>
-            <Link href="/dashboard/finance/commissions">
-              <Button variant="outline" size="sm">ดูทั้งหมด</Button>
-            </Link>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {pendingCommissions.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <TrendingUp className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p>ไม่มีค่าคอมมิชชั่นรออนุมัติ</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b text-left text-sm text-muted-foreground">
-                    <th className="py-2">รหัสตัวแทน</th>
-                    <th className="py-2">บริษัท</th>
-                    <th className="py-2">ประเภท</th>
-                    <th className="py-2 text-right">จำนวน</th>
-                    <th className="py-2 text-right">วันที่</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pendingCommissions.map((commission) => (
-                    <tr key={commission.id} className="border-b">
-                      <td className="py-3 font-mono text-sm">{commission.agent.agentId}</td>
-                      <td className="py-3">{commission.agent.companyName}</td>
-                      <td className="py-3">
-                        <Badge variant="outline">{commission.type}</Badge>
-                      </td>
-                      <td className="py-3 text-right font-medium">
-                        ฿{Number(commission.amount).toLocaleString()}
-                      </td>
-                      <td className="py-3 text-right text-sm text-muted-foreground">
-                        {format(new Date(commission.createdAt), 'dd/MM/yyyy')}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   )
 }

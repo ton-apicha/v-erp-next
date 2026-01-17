@@ -19,8 +19,6 @@ import {
     Briefcase,
     FileText,
 } from 'lucide-react'
-import DocumentUpload from '@/components/documents/DocumentUpload'
-import DocumentList from '@/components/documents/DocumentList'
 
 export default async function ClientProfilePage({
     params,
@@ -158,10 +156,7 @@ export default async function ClientProfilePage({
                                     <Building2 className="h-8 w-8 text-primary" />
                                 </div>
                                 <div>
-                                    <p className="font-bold">{client.companyName}</p>
-                                    {client.companyNameEN && (
-                                        <p className="text-sm text-muted-foreground">{client.companyNameEN}</p>
-                                    )}
+                                    <p className="font-bold">{client.companyName || client.personName}</p>
                                 </div>
                             </div>
 
@@ -337,16 +332,24 @@ export default async function ClientProfilePage({
                     {/* Documents */}
                     <Card>
                         <CardHeader>
-                            <div className="flex items-center justify-between">
-                                <CardTitle className="text-lg flex items-center gap-2">
-                                    <FileText className="h-5 w-5" />
-                                    เอกสาร (Documents)
-                                </CardTitle>
-                                <DocumentUpload clientId={id} />
-                            </div>
+                            <CardTitle className="text-lg flex items-center gap-2">
+                                <FileText className="h-5 w-5" />
+                                เอกสาร (Documents)
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <DocumentList documents={client.documents} />
+                            {client.documents.length === 0 ? (
+                                <p className="text-center py-4 text-muted-foreground">ยังไม่มีเอกสาร</p>
+                            ) : (
+                                <div className="space-y-2">
+                                    {client.documents.map((doc) => (
+                                        <div key={doc.id} className="flex items-center justify-between p-2 border rounded">
+                                            <span className="text-sm">{doc.title}</span>
+                                            <Badge variant="outline">{doc.type}</Badge>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
 

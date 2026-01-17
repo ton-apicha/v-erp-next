@@ -2,8 +2,14 @@ import { prisma } from '@/lib/db'
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { logCreate } from '@/lib/audit'
 
 export async function GET(request: Request) {
+    const session = await getServerSession(authOptions)
+    if (!session) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search')
     const minimal = searchParams.get('minimal') === 'true'
@@ -20,7 +26,7 @@ export async function GET(request: Request) {
         if (minimal) {
             const clients = await prisma.client.findMany({
                 where,
-                select: { id: true, companyName: true, clientId: true },
+                select: { id: true, companyName: true, personName: true, clientId: true },
                 orderBy: { companyName: 'asc' },
             })
             return NextResponse.json(clients)
@@ -46,6 +52,12 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Permission check
+    const userRole = (session.user as any)?.role?.name
+    if (!['SUPER_ADMIN', 'MANAGER', 'TH_OPERATOR'].includes(userRole || '')) {
+        return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+    }
+
     try {
         const body = await request.json()
 
@@ -58,7 +70,8 @@ export async function POST(request: Request) {
             data: {
                 clientId,
                 companyName: body.companyName,
-                companyNameEN: body.companyNameEN,
+                personName: body.personName,
+                type: body.type || 'FACTORY',
                 contactPerson: body.contactPerson,
                 phoneNumber: body.phoneNumber,
                 email: body.email,
@@ -66,9 +79,21 @@ export async function POST(request: Request) {
                 taxId: body.taxId,
                 industry: body.industry,
                 employeeCount: body.employeeCount ? parseInt(body.employeeCount) : undefined,
-                createdById: (session.user as any).id,
+                createdBy: { connect: { id: (session.user as any).id } },
             },
         })
+
+        // Audit log
+        await logCreate(
+            {
+                id: (session.user as any).id,
+                email: session.user.email || '',
+                name: session.user.name || '',
+            },
+            'clients',
+            client.id,
+            client
+        )
 
         return NextResponse.json(client, { status: 201 })
     } catch (error) {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { logUpdate, logDelete } from '@/lib/audit'
 
 // GET /api/workers/[id]
 export async function GET(
@@ -19,9 +20,8 @@ export async function GET(
             where: { id },
             include: {
                 createdBy: { select: { name: true, email: true } },
-                agent: true,
+                partner: true,
                 client: true,
-                documents: true,
             },
         })
 
@@ -47,10 +47,21 @@ export async function PUT(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
+        // Permission check
+        const userRole = (session.user as any)?.role?.name
+        if (!['SUPER_ADMIN', 'MANAGER', 'TH_OPERATOR', 'LAO_MANAGER'].includes(userRole || '')) {
+            return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+        }
+
+        // Get original for audit
+        const original = await prisma.worker.findUnique({ where: { id } })
+        if (!original) {
+            return NextResponse.json({ error: 'ไม่พบข้อมูล' }, { status: 404 })
+        }
+
         const body = await request.json()
 
         // Clean up data for update
-        // We'll trust the body structure matches the creation, but handle nulls
         const updateData: any = { ...body }
         delete updateData.id
         delete updateData.workerId
@@ -62,6 +73,19 @@ export async function PUT(
             where: { id },
             data: updateData,
         })
+
+        // Audit log
+        await logUpdate(
+            {
+                id: (session.user as any).id,
+                email: session.user.email || '',
+                name: session.user.name || '',
+            },
+            'workers',
+            id,
+            original,
+            worker
+        )
 
         return NextResponse.json(worker)
     } catch (error) {
@@ -85,9 +109,33 @@ export async function DELETE(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
+        // Permission check
+        const userRole = (session.user as any)?.role?.name
+        if (!['SUPER_ADMIN', 'MANAGER'].includes(userRole || '')) {
+            return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+        }
+
+        // Get original for audit
+        const original = await prisma.worker.findUnique({ where: { id } })
+        if (!original) {
+            return NextResponse.json({ error: 'ไม่พบข้อมูล' }, { status: 404 })
+        }
+
         await prisma.worker.delete({
             where: { id },
         })
+
+        // Audit log
+        await logDelete(
+            {
+                id: (session.user as any).id,
+                email: session.user.email || '',
+                name: session.user.name || '',
+            },
+            'workers',
+            id,
+            original
+        )
 
         return NextResponse.json({ message: 'ลบข้อมูลสำเร็จ' })
     } catch (error) {

@@ -1,11 +1,14 @@
+// =====================================================
+// Documents Page - Fixed (Removed agent relation)
+// =====================================================
+
 import { prisma } from '@/lib/db'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { format } from 'date-fns'
-import { th } from 'date-fns/locale'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -17,7 +20,6 @@ import {
     Eye,
     AlertTriangle,
     Clock,
-    CheckCircle,
     XCircle,
     User,
     Building2,
@@ -51,13 +53,12 @@ export default async function DocumentsPage({
         ]
     }
 
+    // Removed 'agent' relation (model no longer exists)
     const documents = await prisma.document.findMany({
         where,
         include: {
             worker: { select: { workerId: true, firstNameTH: true, lastNameTH: true } },
-            agent: { select: { agentId: true, companyName: true } },
             client: { select: { clientId: true, companyName: true } },
-
         },
         orderBy: { createdAt: 'desc' },
         take: 100,
@@ -91,7 +92,7 @@ export default async function DocumentsPage({
 
     const typeIcons: Record<string, React.ReactNode> = {
         WORKER_DOC: <User className="h-4 w-4" />,
-        AGENT_DOC: <Handshake className="h-4 w-4" />,
+        PARTNER_DOC: <Handshake className="h-4 w-4" />,
         CLIENT_DOC: <Building2 className="h-4 w-4" />,
         SYSTEM_DOC: <FileText className="h-4 w-4" />,
     }
@@ -99,9 +100,6 @@ export default async function DocumentsPage({
     const getEntityLink = (doc: any) => {
         if (doc.workerId && doc.worker) {
             return { href: `/dashboard/workers/${doc.workerId}`, label: `${doc.worker.firstNameTH} ${doc.worker.lastNameTH}`, id: doc.worker.workerId }
-        }
-        if (doc.agentId && doc.agent) {
-            return { href: `/dashboard/agents/${doc.agentId}`, label: doc.agent.companyName, id: doc.agent.agentId }
         }
         if (doc.clientId && doc.client) {
             return { href: `/dashboard/clients/${doc.clientId}`, label: doc.client.companyName, id: doc.client.clientId }
@@ -119,22 +117,22 @@ export default async function DocumentsPage({
                         เอกสารทั้งหมด
                     </h1>
                     <p className="text-muted-foreground">
-                        จัดการเอกสารของแรงงาน ตัวแทน และนายจ้าง
+                        จัดการเอกสารของแรงงาน พาร์ทเนอร์ และนายจ้าง
                     </p>
                 </div>
             </div>
 
             {/* Alert: Expiring Documents */}
             {(stats.expiring > 0 || stats.expired > 0) && (
-                <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
+                <Card className="border-orange-200 bg-orange-50">
                     <CardContent className="py-4">
                         <div className="flex items-center gap-4">
                             <AlertTriangle className="h-8 w-8 text-orange-500" />
                             <div>
-                                <p className="font-medium text-orange-700 dark:text-orange-300">
+                                <p className="font-medium text-orange-700">
                                     แจ้งเตือนเอกสาร
                                 </p>
-                                <p className="text-sm text-orange-600 dark:text-orange-400">
+                                <p className="text-sm text-orange-600">
                                     {stats.expired > 0 && `มี ${stats.expired} เอกสารหมดอายุแล้ว • `}
                                     {stats.expiring > 0 && `มี ${stats.expiring} เอกสารจะหมดอายุใน 30 วัน`}
                                 </p>
@@ -210,7 +208,7 @@ export default async function DocumentsPage({
                         >
                             <option value="ALL">ทุกประเภท</option>
                             <option value="WORKER_DOC">เอกสารแรงงาน</option>
-                            <option value="AGENT_DOC">เอกสารตัวแทน</option>
+                            <option value="PARTNER_DOC">เอกสารพาร์ทเนอร์</option>
                             <option value="CLIENT_DOC">เอกสารนายจ้าง</option>
                         </select>
                         <select
@@ -272,7 +270,7 @@ export default async function DocumentsPage({
                                                 </td>
                                                 <td className="py-3 px-4">
                                                     <div className="flex items-center gap-2">
-                                                        {typeIcons[doc.type]}
+                                                        {typeIcons[doc.type] || <FileText className="h-4 w-4" />}
                                                         <span className="text-sm">{doc.category || doc.type}</span>
                                                     </div>
                                                 </td>

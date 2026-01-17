@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Save, Loader2, User, Phone, MapPin, FileText, Briefcase } from 'lucide-react'
+import { ArrowLeft, Save, Loader2, User, Phone, MapPin, FileText, Briefcase, Handshake } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -20,26 +20,30 @@ interface ShortList {
 
 export default function NewWorkerPage() {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [address, setAddress] = useState('')
 
     // Lists
-    const [agents, setAgents] = useState<ShortList[]>([])
+    const [partners, setPartners] = useState<ShortList[]>([])
     const [clients, setClients] = useState<ShortList[]>([])
+
+    // Pre-selected partner from URL
+    const preSelectedPartnerId = searchParams.get('partnerId')
 
     // Load Lists
     useEffect(() => {
         const fetchLists = async () => {
             try {
-                const [agentsRes, clientsRes] = await Promise.all([
-                    fetch('/api/agents?minimal=true'),
+                const [partnersRes, clientsRes] = await Promise.all([
+                    fetch('/api/partners?minimal=true'),
                     fetch('/api/clients?minimal=true')
                 ])
 
-                if (agentsRes.ok) {
-                    const data = await agentsRes.json()
-                    setAgents(data.map((i: any) => ({ id: i.id, name: i.companyName, code: i.agentId })))
+                if (partnersRes.ok) {
+                    const data = await partnersRes.json()
+                    setPartners(data.map((i: any) => ({ id: i.id, name: i.name, code: i.partnerId })))
                 }
                 if (clientsRes.ok) {
                     const data = await clientsRes.json()
@@ -61,22 +65,23 @@ export default function NewWorkerPage() {
         const data = {
             firstNameTH: formData.get('firstNameTH'),
             lastNameTH: formData.get('lastNameTH'),
-            firstNameEN: formData.get('firstNameEN'),
-            lastNameEN: formData.get('lastNameEN'),
             nickname: formData.get('nickname'),
             gender: formData.get('gender'),
             dateOfBirth: formData.get('dateOfBirth'),
             nationality: formData.get('nationality'),
-            religion: formData.get('religion'),
             phoneNumber: formData.get('phoneNumber'),
-            email: formData.get('email'),
-            lineId: formData.get('lineId'),
             address: address, // Standardized address
             passportNo: formData.get('passportNo'),
             visaNo: formData.get('visaNo'),
             workPermitNo: formData.get('workPermitNo'),
+            // Document Tags
+            hasPassport: formData.get('hasPassport') === 'true',
+            hasVisa: formData.get('hasVisa') === 'true',
+            hasWorkPermit: formData.get('hasWorkPermit') === 'true',
+            hasMedicalCert: formData.get('hasMedicalCert') === 'true',
+            hasAcademyTraining: formData.get('hasAcademyTraining') === 'true',
             // Relations
-            agentId: formData.get('agentId') || null,
+            partnerId: formData.get('partnerId') || null,
             clientId: formData.get('clientId') || null,
             position: formData.get('position'),
             salary: formData.get('salary') ? parseFloat(formData.get('salary') as string) : null,
@@ -150,14 +155,6 @@ export default function NewWorkerPage() {
                                     <Input id="lastNameTH" name="lastNameTH" required placeholder="ใจดี" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="firstNameEN">ชื่อ (อังกฤษ)</Label>
-                                    <Input id="firstNameEN" name="firstNameEN" placeholder="Somchai" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="lastNameEN">นามสกุล (อังกฤษ)</Label>
-                                    <Input id="lastNameEN" name="lastNameEN" placeholder="Jaidee" />
-                                </div>
-                                <div className="space-y-2">
                                     <Label htmlFor="nickname">ชื่อเล่น</Label>
                                     <Input id="nickname" name="nickname" placeholder="ชาย" />
                                 </div>
@@ -191,10 +188,6 @@ export default function NewWorkerPage() {
                                             <SelectItem value="CAMBODIAN">กัมพูชา</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="religion">ศาสนา</Label>
-                                    <Input id="religion" name="religion" placeholder="พุทธ" />
                                 </div>
                             </CardContent>
                         </Card>
@@ -246,18 +239,21 @@ export default function NewWorkerPage() {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="agentId">นายหน้า/ตัวแทน (Agent)</Label>
-                                    <Select name="agentId">
+                                    <Label htmlFor="partnerId" className="flex items-center gap-1">
+                                        <Handshake className="w-4 h-4" />
+                                        พาร์ทเนอร์
+                                    </Label>
+                                    <Select name="partnerId" defaultValue={preSelectedPartnerId || ''}>
                                         <SelectTrigger>
-                                            <SelectValue placeholder="เลือกตัวแทน..." />
+                                            <SelectValue placeholder="เลือกพาร์ทเนอร์..." />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {agents.map((agent) => (
-                                                <SelectItem key={agent.id} value={agent.id}>
-                                                    {agent.name}
+                                            <SelectItem value="none">ไม่ระบุ</SelectItem>
+                                            {partners.map((partner) => (
+                                                <SelectItem key={partner.id} value={partner.id}>
+                                                    {partner.name} ({partner.code})
                                                 </SelectItem>
                                             ))}
-                                            <SelectItem value="none">ไม่ระบุ</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -311,6 +307,33 @@ export default function NewWorkerPage() {
                                 <div className="space-y-2">
                                     <Label htmlFor="workPermitNo">เลขที่ Work Permit</Label>
                                     <Input id="workPermitNo" name="workPermitNo" />
+                                </div>
+
+                                {/* Document Tags */}
+                                <div className="pt-4 border-t">
+                                    <Label className="mb-3 block">สถานะเอกสาร (Tags)</Label>
+                                    <div className="grid grid-cols-1 gap-2">
+                                        <label className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-2 rounded">
+                                            <input type="checkbox" name="hasPassport" value="true" className="rounded" />
+                                            มี Passport
+                                        </label>
+                                        <label className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-2 rounded">
+                                            <input type="checkbox" name="hasVisa" value="true" className="rounded" />
+                                            มี Visa
+                                        </label>
+                                        <label className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-2 rounded">
+                                            <input type="checkbox" name="hasWorkPermit" value="true" className="rounded" />
+                                            มีใบอนุญาตทำงาน
+                                        </label>
+                                        <label className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-2 rounded">
+                                            <input type="checkbox" name="hasMedicalCert" value="true" className="rounded" />
+                                            มีใบรับรองแพทย์
+                                        </label>
+                                        <label className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-2 rounded">
+                                            <input type="checkbox" name="hasAcademyTraining" value="true" className="rounded" />
+                                            ผ่านการฝึกอบรม
+                                        </label>
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>

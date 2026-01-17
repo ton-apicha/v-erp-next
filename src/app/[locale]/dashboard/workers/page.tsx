@@ -1,16 +1,39 @@
+// =====================================================
+// Workers List Page - Updated with Document Tags
+// =====================================================
+
 import { prisma } from '@/lib/db'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Link from 'next/link'
-import { Plus, Search, LayoutGrid, Users, CheckCircle2, FlaskConical, Briefcase } from 'lucide-react'
-import WorkerTable from '@/components/workers/WorkerTable'
-import { Card, CardContent } from '@/components/ui/card'
+import { Plus, Search, LayoutGrid, Users, CheckCircle2, Briefcase, Clock, FileText } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
+import { format } from 'date-fns'
+
+// Status colors and labels (matches Prisma WorkerStatus enum)
+const statusConfig: Record<string, { label: string; color: string }> = {
+    NEW: { label: 'ใหม่', color: 'bg-gray-100 text-gray-800' },
+    DOCUMENTING: { label: 'กำลังทำเอกสาร', color: 'bg-yellow-100 text-yellow-800' },
+    TRAINING: { label: 'กำลังฝึกอบรม', color: 'bg-blue-100 text-blue-800' },
+    READY: { label: 'พร้อมส่งตัว', color: 'bg-green-100 text-green-800' },
+    DEPLOYED: { label: 'ส่งตัวแล้ว', color: 'bg-purple-100 text-purple-800' },
+    WORKING: { label: 'กำลังทำงาน', color: 'bg-indigo-100 text-indigo-800' },
+    COMPLETED: { label: 'ครบสัญญา', color: 'bg-teal-100 text-teal-800' },
+    TERMINATED: { label: 'ยกเลิก', color: 'bg-red-100 text-red-800' },
+    RETURNED: { label: 'กลับประเทศ', color: 'bg-orange-100 text-orange-800' },
+}
 
 export default async function WorkersPage(props: {
-    searchParams: Promise<{ search?: string; status?: string }>
+    searchParams: Promise<{
+        search?: string
+        status?: string
+        hasPassport?: string
+        hasVisa?: string
+        hasWorkPermit?: string
+    }>
 }) {
     const searchParams = await props.searchParams
     const session = await getServerSession(authOptions)
@@ -27,25 +50,35 @@ export default async function WorkersPage(props: {
         ]
     }
 
-    if (searchParams.status && searchParams.status !== 'image/png') { // Fix for weird ghost param if any
+    if (searchParams.status) {
         where.status = searchParams.status
     }
+
+    // Document tag filters
+    if (searchParams.hasPassport === 'true') where.hasPassport = true
+    if (searchParams.hasVisa === 'true') where.hasVisa = true
+    if (searchParams.hasWorkPermit === 'true') where.hasWorkPermit = true
 
     const workers = await prisma.worker.findMany({
         where,
         include: {
             createdBy: { select: { name: true } },
-            agent: { select: { companyName: true } },
+            partner: { select: { name: true } },
             client: { select: { companyName: true } },
         },
         orderBy: { createdAt: 'desc' },
+        take: 100,
     })
 
     const stats = {
         total: await prisma.worker.count(),
-        newLead: await prisma.worker.count({ where: { status: 'NEW_LEAD' } }),
-        working: await prisma.worker.count({ where: { status: 'WORKING' } }),
+        newWorkers: await prisma.worker.count({ where: { status: 'NEW' } }),
         ready: await prisma.worker.count({ where: { status: 'READY' } }),
+        working: await prisma.worker.count({ where: { status: 'WORKING' } }),
+        // Document completeness
+        withPassport: await prisma.worker.count({ where: { hasPassport: true } }),
+        withVisa: await prisma.worker.count({ where: { hasVisa: true } }),
+        withWorkPermit: await prisma.worker.count({ where: { hasWorkPermit: true } }),
     }
 
     return (
@@ -81,13 +114,13 @@ export default async function WorkersPage(props: {
                     color="bg-blue-500"
                 />
                 <StatCard
-                    label="รายชื่อใหม่"
-                    value={stats.newLead}
-                    icon={<FlaskConical className="w-6 h-6 text-white" />}
+                    label="รายใหม่"
+                    value={stats.newWorkers}
+                    icon={<Clock className="w-6 h-6 text-white" />}
                     color="bg-gray-500"
                 />
                 <StatCard
-                    label="พร้อมทำงาน"
+                    label="พร้อมส่งตัว"
                     value={stats.ready}
                     icon={<CheckCircle2 className="w-6 h-6 text-white" />}
                     color="bg-green-500"
@@ -96,9 +129,45 @@ export default async function WorkersPage(props: {
                     label="กำลังทำงาน"
                     value={stats.working}
                     icon={<Briefcase className="w-6 h-6 text-white" />}
-                    color="bg-purple-500"
+                    color="bg-indigo-500"
                 />
             </div>
+
+            {/* Document Tags Stats */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                        <FileText className="h-5 w-5" />
+                        สถานะเอกสาร
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex flex-wrap gap-4">
+                        <Link href={`?hasPassport=true${searchParams.status ? `&status=${searchParams.status}` : ''}`}>
+                            <Badge variant="outline" className={`cursor-pointer hover:bg-primary/10 ${searchParams.hasPassport === 'true' ? 'bg-primary/20 border-primary' : ''}`}>
+                                มี Passport: {stats.withPassport}
+                            </Badge>
+                        </Link>
+                        <Link href={`?hasVisa=true${searchParams.status ? `&status=${searchParams.status}` : ''}`}>
+                            <Badge variant="outline" className={`cursor-pointer hover:bg-primary/10 ${searchParams.hasVisa === 'true' ? 'bg-primary/20 border-primary' : ''}`}>
+                                มี Visa: {stats.withVisa}
+                            </Badge>
+                        </Link>
+                        <Link href={`?hasWorkPermit=true${searchParams.status ? `&status=${searchParams.status}` : ''}`}>
+                            <Badge variant="outline" className={`cursor-pointer hover:bg-primary/10 ${searchParams.hasWorkPermit === 'true' ? 'bg-primary/20 border-primary' : ''}`}>
+                                มีใบอนุญาต: {stats.withWorkPermit}
+                            </Badge>
+                        </Link>
+                        {(searchParams.hasPassport || searchParams.hasVisa || searchParams.hasWorkPermit) && (
+                            <Link href={`?${searchParams.status ? `status=${searchParams.status}` : ''}`}>
+                                <Badge variant="secondary" className="cursor-pointer">
+                                    ล้างตัวกรอง
+                                </Badge>
+                            </Link>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Search & Filter */}
             <Card>
@@ -117,10 +186,22 @@ export default async function WorkersPage(props: {
                             </div>
                         </div>
                         <div className="w-full md:w-48">
-                            <NativeSelectWrapper
+                            <select
                                 name="status"
                                 defaultValue={searchParams.status}
-                            />
+                                className="flex h-10 w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm"
+                            >
+                                <option value="">สถานะทั้งหมด</option>
+                                <option value="NEW">ใหม่</option>
+                                <option value="DOCUMENTING">กำลังทำเอกสาร</option>
+                                <option value="TRAINING">กำลังฝึกอบรม</option>
+                                <option value="READY">พร้อมส่งตัว</option>
+                                <option value="DEPLOYED">ส่งตัวแล้ว</option>
+                                <option value="WORKING">กำลังทำงาน</option>
+                                <option value="COMPLETED">ครบสัญญา</option>
+                                <option value="TERMINATED">ยกเลิก</option>
+                                <option value="RETURNED">กลับประเทศ</option>
+                            </select>
                         </div>
                         <Button type="submit">
                             ค้นหา
@@ -129,10 +210,64 @@ export default async function WorkersPage(props: {
                 </CardContent>
             </Card>
 
-            {/* Worker Table */}
+            {/* Worker List */}
             <Card>
                 <CardContent className="p-0">
-                    <WorkerTable workers={workers} />
+                    {workers.length === 0 ? (
+                        <div className="text-center py-12 text-muted-foreground">
+                            <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                            <p>ไม่พบข้อมูลแรงงาน</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b bg-muted/50">
+                                        <th className="text-left py-3 px-4 text-sm font-medium">รหัส/ชื่อ</th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium">โทร</th>
+                                        <th className="text-center py-3 px-4 text-sm font-medium">เอกสาร</th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium">พาร์ทเนอร์</th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium">นายจ้าง</th>
+                                        <th className="text-center py-3 px-4 text-sm font-medium">สถานะ</th>
+                                        <th className="text-right py-3 px-4 text-sm font-medium">วันที่สร้าง</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {workers.map((worker) => (
+                                        <tr key={worker.id} className="border-b hover:bg-muted/30">
+                                            <td className="py-3 px-4">
+                                                <Link href={`/dashboard/workers/${worker.id}`} className="hover:text-primary">
+                                                    <p className="font-medium">{worker.firstNameTH} {worker.lastNameTH}</p>
+                                                    <p className="text-xs text-muted-foreground font-mono">{worker.workerId}</p>
+                                                </Link>
+                                            </td>
+                                            <td className="py-3 px-4 text-sm">{worker.phoneNumber || '-'}</td>
+                                            <td className="py-3 px-4">
+                                                <div className="flex justify-center gap-1">
+                                                    {worker.hasPassport && <Badge variant="secondary" className="text-xs">PP</Badge>}
+                                                    {worker.hasVisa && <Badge variant="secondary" className="text-xs">V</Badge>}
+                                                    {worker.hasWorkPermit && <Badge variant="secondary" className="text-xs">WP</Badge>}
+                                                    {!worker.hasPassport && !worker.hasVisa && !worker.hasWorkPermit && (
+                                                        <span className="text-muted-foreground text-xs">-</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="py-3 px-4 text-sm">{worker.partner?.name || '-'}</td>
+                                            <td className="py-3 px-4 text-sm">{worker.client?.companyName || '-'}</td>
+                                            <td className="py-3 px-4 text-center">
+                                                <Badge className={statusConfig[worker.status]?.color || 'bg-gray-100'}>
+                                                    {statusConfig[worker.status]?.label || worker.status}
+                                                </Badge>
+                                            </td>
+                                            <td className="py-3 px-4 text-right text-sm text-muted-foreground">
+                                                {format(new Date(worker.createdAt), 'dd/MM/yy')}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>
@@ -152,35 +287,5 @@ function StatCard({ label, value, icon, color }: { label: string; value: number;
                 </div>
             </CardContent>
         </Card>
-    )
-}
-
-// Helper for select to work with server-side form submission
-function NativeSelectWrapper({ name, defaultValue }: { name: string, defaultValue?: string }) {
-    return (
-        <div className="relative">
-            <select
-                name={name}
-                defaultValue={defaultValue}
-                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 appearance-none"
-            >
-                <option value="">สถานะทั้งหมด</option>
-                <option value="NEW_LEAD">รายชื่อใหม่</option>
-                <option value="SCREENING">รอตรวจสอบ</option>
-                <option value="PROCESSING">กำลังดำเนินการ</option>
-                <option value="ACADEMY">ฝึกอบรม</option>
-                <option value="READY">พร้อมส่งตัว</option>
-                <option value="DEPLOYED">ส่งตัวแล้ว</option>
-                <option value="WORKING">กำลังทำงาน</option>
-                <option value="COMPLETED">สิ้นสุดสัญญา</option>
-                <option value="TERMINATED">เลิกจ้าง</option>
-                <option value="REJECTED">ปฏิเสธ</option>
-            </select>
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
-                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-            </div>
-        </div>
     )
 }

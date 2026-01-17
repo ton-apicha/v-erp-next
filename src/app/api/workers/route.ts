@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { logCreate } from '@/lib/audit'
 
 // GET /api/workers - List all workers
 export async function GET(request: NextRequest) {
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
         const workers = await prisma.worker.findMany({
             include: {
                 createdBy: { select: { name: true } },
-                agent: { select: { companyName: true } },
+                partner: { select: { name: true } },
                 client: { select: { companyName: true } },
             },
             orderBy: { createdAt: 'desc' },
@@ -32,6 +33,12 @@ export async function POST(request: NextRequest) {
         const session = await getServerSession(authOptions)
         if (!session) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
+        // Permission check
+        const userRole = (session.user as any)?.role?.name
+        if (!['SUPER_ADMIN', 'MANAGER', 'TH_OPERATOR', 'LAO_MANAGER', 'LAO_OPERATOR'].includes(userRole || '')) {
+            return NextResponse.json({ error: 'Access denied' }, { status: 403 })
         }
 
         const body = await request.json()
@@ -55,24 +62,40 @@ export async function POST(request: NextRequest) {
                 workerId,
                 firstNameTH: body.firstNameTH,
                 lastNameTH: body.lastNameTH,
-                firstNameEN: body.firstNameEN,
-                lastNameEN: body.lastNameEN,
                 nickname: body.nickname,
                 gender: body.gender,
-                dateOfBirth: new Date(body.dateOfBirth),
+                dateOfBirth: new Date(body.dateOfBirth || '1990-01-01'),
                 nationality: body.nationality || 'LAO',
-                religion: body.religion,
                 phoneNumber: body.phoneNumber,
-                email: body.email,
-                lineId: body.lineId,
                 address: body.address,
                 passportNo: body.passportNo,
                 visaNo: body.visaNo,
                 workPermitNo: body.workPermitNo,
-                status: 'NEW_LEAD',
+                // Document Tags
+                hasPassport: body.hasPassport || false,
+                hasVisa: body.hasVisa || false,
+                hasWorkPermit: body.hasWorkPermit || false,
+                hasMedicalCert: body.hasMedicalCert || false,
+                hasAcademyTraining: body.hasAcademyTraining || false,
+                // Relations
+                partnerId: body.partnerId && body.partnerId !== 'none' ? body.partnerId : null,
+                clientId: body.clientId && body.clientId !== 'none' ? body.clientId : null,
+                status: 'NEW',
                 createdById: (session.user as any).id,
             },
         })
+
+        // Audit log
+        await logCreate(
+            {
+                id: (session.user as any).id,
+                email: session.user.email || '',
+                name: session.user.name || '',
+            },
+            'workers',
+            worker.id,
+            worker
+        )
 
         return NextResponse.json(worker, { status: 201 })
     } catch (error) {

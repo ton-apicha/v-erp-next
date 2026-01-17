@@ -1,8 +1,11 @@
+// =====================================================
+// Users Management Page - Updated for Role Relation
+// =====================================================
+
 import { prisma } from '@/lib/db'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { redirect } from 'next/navigation'
-import Link from 'next/link'
+import { redirect, Link } from '@/i18n/routing'
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -30,57 +33,43 @@ export default async function UsersPage() {
     const session = await getServerSession(authOptions)
     if (!session) redirect('/login')
 
-    const currentUser = session.user as any
+    const currentUser = session?.user as any
 
-    // Only SUPER_ADMIN and MANAGER can view users
-    if (!['SUPER_ADMIN', 'MANAGER'].includes(currentUser.role)) {
+    // Only SUPER_ADMIN can view users
+    if (!currentUser?.role?.name || currentUser.role.name !== 'SUPER_ADMIN') {
         redirect('/dashboard')
     }
 
     const users = await prisma.user.findMany({
         orderBy: [
-            { role: 'asc' },
             { name: 'asc' },
         ],
-        select: {
-            id: true,
-            name: true,
-            email: true,
+        include: {
             role: true,
-            createdAt: true,
-            updatedAt: true,
             _count: {
                 select: {
                     createdWorkers: true,
-                    auditLogs: true,
                 },
             },
         },
     })
 
+    // Get role stats
+    const roleStats = await prisma.role.findMany({
+        include: {
+            _count: {
+                select: { users: true }
+            }
+        }
+    })
+
     const stats = {
         total: users.length,
-        superAdmin: users.filter(u => u.role === 'SUPER_ADMIN').length,
-        manager: users.filter(u => u.role === 'MANAGER').length,
-        staff: users.filter(u => u.role === 'STAFF').length,
-    }
-
-    const roleColors: Record<string, string> = {
-        SUPER_ADMIN: 'bg-red-100 text-red-800 border-red-300',
-        MANAGER: 'bg-blue-100 text-blue-800 border-blue-300',
-        STAFF: 'bg-green-100 text-green-800 border-green-300',
-    }
-
-    const roleLabels: Record<string, string> = {
-        SUPER_ADMIN: 'ผู้ดูแลระบบ',
-        MANAGER: 'ผู้จัดการ',
-        STAFF: 'พนักงาน',
-    }
-
-    const roleIcons: Record<string, React.ReactNode> = {
-        SUPER_ADMIN: <Shield className="h-4 w-4" />,
-        MANAGER: <UserCog className="h-4 w-4" />,
-        STAFF: <User className="h-4 w-4" />,
+        roleBreakdown: roleStats.map(r => ({
+            name: r.name,
+            displayName: r.displayName,
+            count: r._count.users
+        }))
     }
 
     return (
@@ -96,14 +85,12 @@ export default async function UsersPage() {
                         จัดการบัญชีผู้ใช้และสิทธิ์การเข้าถึง
                     </p>
                 </div>
-                {currentUser.role === 'SUPER_ADMIN' && (
-                    <Link href="/dashboard/users/new">
-                        <Button>
-                            <Plus className="h-4 w-4 mr-2" />
-                            เพิ่มผู้ใช้
-                        </Button>
-                    </Link>
-                )}
+                <Link href="/dashboard/users/new">
+                    <Button>
+                        <Plus className="h-4 w-4 mr-2" />
+                        เพิ่มผู้ใช้
+                    </Button>
+                </Link>
             </div>
 
             {/* Stats */}
@@ -118,39 +105,19 @@ export default async function UsersPage() {
                         <div className="text-2xl font-bold">{stats.total}</div>
                     </CardContent>
                 </Card>
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                            <Shield className="h-4 w-4 text-red-500" />
-                            Super Admin
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-red-600">{stats.superAdmin}</div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                            <UserCog className="h-4 w-4 text-blue-500" />
-                            Manager
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-blue-600">{stats.manager}</div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                            <User className="h-4 w-4 text-green-500" />
-                            Staff
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-green-600">{stats.staff}</div>
-                    </CardContent>
-                </Card>
+                {stats.roleBreakdown.slice(0, 3).map(role => (
+                    <Card key={role.name}>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                                <Shield className="h-4 w-4" />
+                                {role.displayName}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{role.count}</div>
+                        </CardContent>
+                    </Card>
+                ))}
             </div>
 
             {/* Users Grid */}
@@ -164,8 +131,7 @@ export default async function UsersPage() {
                         .slice(0, 2)
 
                     const isCurrentUser = user.id === currentUser.id
-                    const canEdit = currentUser.role === 'SUPER_ADMIN' ||
-                        (currentUser.role === 'MANAGER' && user.role !== 'SUPER_ADMIN')
+                    const isSuperAdmin = user.role.name === 'SUPER_ADMIN'
 
                     return (
                         <Card key={user.id} className={isCurrentUser ? 'ring-2 ring-primary' : ''}>
@@ -173,10 +139,7 @@ export default async function UsersPage() {
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-center gap-4">
                                         <Avatar className="h-12 w-12">
-                                            <AvatarFallback className={`${user.role === 'SUPER_ADMIN' ? 'bg-red-100 text-red-700' :
-                                                    user.role === 'MANAGER' ? 'bg-blue-100 text-blue-700' :
-                                                        'bg-green-100 text-green-700'
-                                                }`}>
+                                            <AvatarFallback className={`${isSuperAdmin ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
                                                 {initials}
                                             </AvatarFallback>
                                         </Avatar>
@@ -194,7 +157,7 @@ export default async function UsersPage() {
                                         </div>
                                     </div>
 
-                                    {canEdit && !isCurrentUser && (
+                                    {!isCurrentUser && (
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" size="icon">
@@ -207,11 +170,9 @@ export default async function UsersPage() {
                                                         แก้ไข
                                                     </Link>
                                                 </DropdownMenuItem>
-                                                {currentUser.role === 'SUPER_ADMIN' && (
-                                                    <DropdownMenuItem className="text-red-600">
-                                                        ลบผู้ใช้
-                                                    </DropdownMenuItem>
-                                                )}
+                                                <DropdownMenuItem className="text-red-600">
+                                                    ลบผู้ใช้
+                                                </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     )}
@@ -219,9 +180,9 @@ export default async function UsersPage() {
 
                                 <div className="mt-4 pt-4 border-t">
                                     <div className="flex items-center justify-between">
-                                        <Badge variant="outline" className={roleColors[user.role]}>
-                                            {roleIcons[user.role]}
-                                            <span className="ml-1">{roleLabels[user.role]}</span>
+                                        <Badge variant="outline" className={isSuperAdmin ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}>
+                                            <Shield className="h-3 w-3 mr-1" />
+                                            {user.role.displayName}
                                         </Badge>
                                         <span className="text-xs text-muted-foreground flex items-center gap-1">
                                             <Calendar className="h-3 w-3" />
@@ -231,7 +192,7 @@ export default async function UsersPage() {
 
                                     <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
                                         <span>สร้างแรงงาน: {user._count.createdWorkers}</span>
-                                        <span>กิจกรรม: {user._count.auditLogs}</span>
+                                        <span>บริษัท: {user.role.companyAccess.length}</span>
                                     </div>
                                 </div>
                             </CardContent>
@@ -240,16 +201,29 @@ export default async function UsersPage() {
                 })}
             </div>
 
-            {/* Info */}
+            {/* Roles Info */}
             <Card>
-                <CardContent className="py-4">
-                    <div className="text-sm text-muted-foreground">
-                        <p><strong>สิทธิ์การใช้งาน:</strong></p>
-                        <ul className="list-disc list-inside mt-2 space-y-1">
-                            <li><Badge className={roleColors.SUPER_ADMIN}>Super Admin</Badge> - เข้าถึงได้ทุกอย่าง, ลบข้อมูล, จัดการผู้ใช้ทั้งหมด</li>
-                            <li><Badge className={roleColors.MANAGER}>Manager</Badge> - เข้าถึงได้ทุกอย่าง, ไม่สามารถลบข้อมูล, จัดการ Staff</li>
-                            <li><Badge className={roleColors.STAFF}>Staff</Badge> - ทำงานปกติ, ดูข้อมูล, เพิ่ม/แก้ไขข้อมูล</li>
-                        </ul>
+                <CardHeader>
+                    <CardTitle className="text-lg">บทบาทในระบบ</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {roleStats.map(role => (
+                            <div key={role.id} className="p-4 border rounded-lg">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Shield className="h-4 w-4" />
+                                    <span className="font-medium">{role.displayName}</span>
+                                </div>
+                                <p className="text-sm text-muted-foreground">{role.description || 'ไม่มีคำอธิบาย'}</p>
+                                <div className="mt-2 flex flex-wrap gap-1">
+                                    {role.companyAccess.map(company => (
+                                        <Badge key={company} variant="secondary" className="text-xs">
+                                            {company}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </CardContent>
             </Card>

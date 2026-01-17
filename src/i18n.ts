@@ -1,7 +1,8 @@
 import { getRequestConfig } from 'next-intl/server';
 import { cookies, headers } from 'next/headers';
 
-export const locales = ['th', 'la', 'en'] as const;
+// รองรับ 2 ภาษา: ไทย และ ลาว
+export const locales = ['th', 'la'] as const;
 export type Locale = (typeof locales)[number];
 
 export const defaultLocale: Locale = 'th';
