@@ -1,16 +1,32 @@
-'use client'
+import React from 'react'
+import { prisma } from '@/lib/prisma'
+import { FAQClient } from './FAQClient'
+import { getFAQSchema } from '@/lib/seo-schema'
 
-import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useLocale, useTranslations } from 'next-intl'
-import { ChevronDown, HelpCircle, MessageCircle } from 'lucide-react'
-import { DEFAULT_FAQS, getFAQSchema } from '@/lib/seo-schema'
+interface FAQSectionProps {
+    locale: 'th' | 'la'
+}
 
-export function FAQSection() {
-    const locale = useLocale() as 'th' | 'la'
-    const [openIndex, setOpenIndex] = useState<number | null>(0)
+export async function FAQSection({ locale }: FAQSectionProps) {
+    // Fetch FAQs from CMS database
+    const dbFaqs = await prisma.cmsFaq.findMany({
+        where: { isActive: true },
+        orderBy: { order: 'asc' },
+        select: {
+            id: true,
+            questionTH: true,
+            questionLA: true,
+            answerTH: true,
+            answerLA: true,
+            category: true
+        }
+    })
 
-    const faqs = DEFAULT_FAQS[locale] || DEFAULT_FAQS.th
+    // Transform to locale-specific format
+    const faqs = dbFaqs.map(faq => ({
+        question: locale === 'la' ? (faq.questionLA || faq.questionTH) : faq.questionTH,
+        answer: locale === 'la' ? (faq.answerLA || faq.answerTH) : faq.answerTH
+    }))
 
     // Generate JSON-LD schema
     const schemaData = getFAQSchema(faqs)
@@ -25,15 +41,12 @@ export function FAQSection() {
 
             <div className="max-w-4xl mx-auto px-4">
                 {/* Section Header */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="text-center mb-16"
-                >
+                <div className="text-center mb-16">
                     <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
-                        <HelpCircle className="w-4 h-4" />
-                        คำถามที่พบบ่อย
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {locale === 'th' ? 'คำถามที่พบบ่อย' : 'ຄຳຖາມທີ່ພົບເລື້ອຍ'}
                     </div>
                     <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
                         {locale === 'th' ? 'คำถามที่พบบ่อย' : 'ຄຳຖາມທີ່ພົບເລື້ອຍ'}
@@ -44,59 +57,17 @@ export function FAQSection() {
                             : 'ລວມຄຳຕອບສຳລັບຄຳຖາມທີ່ລູກຄ້າຖາມເລື້ອຍກ່ຽວກັບການນຳເຂົ້າແຮງງານລາວ'
                         }
                     </p>
-                </motion.div>
-
-                {/* FAQ Accordion */}
-                <div className="space-y-4">
-                    {faqs.map((faq, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, y: 10 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: index * 0.1 }}
-                            className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
-                        >
-                            <button
-                                onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                                className="w-full flex items-center justify-between p-6 text-left gap-4"
-                            >
-                                <span className="font-semibold text-slate-900 text-lg">
-                                    {faq.question}
-                                </span>
-                                <ChevronDown
-                                    className={`w-5 h-5 text-slate-400 transition-transform shrink-0 ${openIndex === index ? 'rotate-180' : ''
-                                        }`}
-                                />
-                            </button>
-
-                            <AnimatePresence>
-                                {openIndex === index && (
-                                    <motion.div
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: 'auto', opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <div className="px-6 pb-6 text-gray-600 leading-relaxed border-t border-slate-100 pt-4">
-                                            {faq.answer}
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </motion.div>
-                    ))}
                 </div>
 
+                {/* Interactive FAQ Accordion - Client Component */}
+                <FAQClient faqs={faqs} locale={locale} />
+
                 {/* CTA */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="mt-12 text-center"
-                >
+                <div className="mt-12 text-center">
                     <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 text-white">
-                        <MessageCircle className="w-10 h-10 mx-auto mb-4 opacity-80" />
+                        <svg className="w-10 h-10 mx-auto mb-4 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
                         <h3 className="text-xl font-bold mb-2">
                             {locale === 'th' ? 'ยังมีคำถามอื่นอีกไหม?' : 'ຍັງມີຄຳຖາມອື່ນອີກບໍ່?'}
                         </h3>
@@ -123,7 +94,7 @@ export function FAQSection() {
                             </a>
                         </div>
                     </div>
-                </motion.div>
+                </div>
             </div>
         </section>
     )

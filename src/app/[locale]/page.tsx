@@ -18,7 +18,13 @@ import {
 } from '@/components/landing'
 import { getOrganizationSchema, getLocalBusinessSchema } from '@/lib/seo-schema'
 
-export default function HomePage() {
+export default async function HomePage({
+    params
+}: {
+    params: Promise<{ locale: string }>
+}) {
+    const { locale } = await params
+
     // Schema data for SEO
     const orgSchema = getOrganizationSchema()
     const localSchema = getLocalBusinessSchema()
@@ -59,10 +65,11 @@ export default function HomePage() {
             {/* Blog/Knowledge Hub */}
             <KnowledgeHubSection />
 
-            {/* FAQ Section with AEO Schema */}
-            <FAQSection />
+            {/* FAQ Section with AEO Schema - Server Component */}
+            <FAQSection locale={locale as 'th' | 'la'} />
 
             <LandingFooter />
         </main>
     )
 }
+

@@ -10,7 +10,9 @@ export * from './PartnersSection'
 export * from './LandingFooter'
 // New components
 export * from './FAQSection'
+export * from './FAQClient'
 export * from './WorkforceCalculator'
 export * from './KnowledgeHubSection'
 export * from './CoverageMapSection'
 export * from './AIAdvantageSection'
+
