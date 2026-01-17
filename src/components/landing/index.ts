@@ -8,3 +8,7 @@ export * from './StandardSection'
 export * from './EsgSection'
 export * from './PartnersSection'
 export * from './LandingFooter'
+// New components
+export * from './FAQSection'
+export * from './WorkforceCalculator'
+export * from './KnowledgeHubSection'
