@@ -12,7 +12,9 @@ import {
     // New sections
     WorkforceCalculator,
     KnowledgeHubSection,
-    FAQSection
+    FAQSection,
+    CoverageMapSection,
+    AIAdvantageSection
 } from '@/components/landing'
 import { getOrganizationSchema, getLocalBusinessSchema } from '@/lib/seo-schema'
 
@@ -38,19 +40,26 @@ export default function HomePage() {
             <StatsSection />
             <VisionSection />
             <ServicesSection />
+
+            {/* AI Advantage - Key Differentiator */}
+            <AIAdvantageSection />
+
             <TechSection />
 
-            {/* New: Lead Magnet Calculator */}
+            {/* Lead Magnet Calculator */}
             <WorkforceCalculator />
+
+            {/* Coverage Map - Interactive Thailand Map */}
+            <CoverageMapSection />
 
             <StandardSection />
             <EsgSection />
             <PartnersSection />
 
-            {/* New: Blog/Knowledge Hub */}
+            {/* Blog/Knowledge Hub */}
             <KnowledgeHubSection />
 
-            {/* New: FAQ Section with AEO Schema */}
+            {/* FAQ Section with AEO Schema */}
             <FAQSection />
 
             <LandingFooter />
