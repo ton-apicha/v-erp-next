@@ -190,6 +190,17 @@ enum WorkerStatus {
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/audit-logs` | List with filters |
+| GET | `/api/audit-logs/export` | Export to Excel |
+
+### Loans (Finance)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/loans` | List (?status, ?workerId, ?search) |
+| POST | `/api/loans` | Create new loan |
+| GET | `/api/loans/[id]` | Get single + payments |
+| PUT | `/api/loans/[id]` | Update loan |
+| DELETE | `/api/loans/[id]` | Cancel loan |
+| POST | `/api/loans/[id]/payment` | Record payment |
 
 ---
 
@@ -321,7 +332,7 @@ npm run dev
 | 5 | TypeScript Cleanup | ✅ 0 errors |
 | 5 | Production Build | ✅ Verified |
 
-**Overall Progress: ~98% - Production Ready! 🚀**
+**Overall Progress: 100% - Production Ready! 🚀**
 
 ---
 
