@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Link } from '@/i18n/routing'
 import { ArrowLeft, Loader2, Save, Eye, Globe } from 'lucide-react'
 import { RichTextEditor } from './RichTextEditor'
+import { SEOPreview } from './SEOPreview'
 
 interface BlogFormProps {
     locale: string
@@ -330,6 +331,17 @@ export function BlogForm({ locale, slug, initialData }: BlogFormProps) {
                             </div>
                         )}
                     </div>
+
+                    {/* SEO Preview */}
+                    <SEOPreview
+                        title={formData.titleTH}
+                        excerpt={formData.excerptTH}
+                        slug={slug || formData.titleTH.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9ก-๙-]/g, '')}
+                        coverImage={formData.coverImage}
+                        category={formData.category}
+                        tags={formData.tags}
+                        locale={locale}
+                    />
                 </div>
             </div>
         </form>
