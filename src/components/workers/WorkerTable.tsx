@@ -12,7 +12,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 
 type WorkerWithRelations = Worker & {
     createdBy: { name: string }

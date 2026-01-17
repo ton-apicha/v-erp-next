@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { use } from 'react'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { ArrowLeft, Save, Loader2, Building2, User, Phone, Mail, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

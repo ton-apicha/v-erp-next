@@ -5,7 +5,7 @@
 import { prisma } from '@/lib/db'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { Plus, Search, LayoutGrid, Users, CheckCircle2, Briefcase, Clock, FileText } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
