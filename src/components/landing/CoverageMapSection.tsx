@@ -1,51 +1,78 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLocale } from 'next-intl'
-import { MapPin, Factory, Users, Building2, CheckCircle } from 'lucide-react'
+import { MapPin, Factory, Users, Building2, CheckCircle, Navigation } from 'lucide-react'
+import dynamic from 'next/dynamic'
 
-// Industrial Estates Data with coordinates (relative to SVG viewBox)
+// Dynamically import map to avoid SSR issues
+const MapContainer = dynamic(
+    () => import('react-leaflet').then(mod => mod.MapContainer),
+    { ssr: false }
+)
+const TileLayer = dynamic(
+    () => import('react-leaflet').then(mod => mod.TileLayer),
+    { ssr: false }
+)
+const Marker = dynamic(
+    () => import('react-leaflet').then(mod => mod.Marker),
+    { ssr: false }
+)
+const Popup = dynamic(
+    () => import('react-leaflet').then(mod => mod.Popup),
+    { ssr: false }
+)
+
+// Industrial Estates Data with real GPS coordinates
 const INDUSTRIAL_ESTATES = [
+    // Samut Prakan
+    {
+        id: 'bangpu',
+        name: { th: 'นิคมฯ บางปู สมุทรปราการ', la: 'ນິຄົມ ບາງປູ ສະໝຸດປຣາການ' },
+        region: 'Samut Prakan',
+        workers: 720,
+        clients: 15,
+        lat: 13.5165,
+        lng: 100.6730
+    },
+    {
+        id: 'bangplee',
+        name: { th: 'นิคมฯ บางพลี สมุทรปราการ', la: 'ນິຄົມ ບາງພລີ ສະໝຸດປຣາການ' },
+        region: 'Samut Prakan',
+        workers: 580,
+        clients: 11,
+        lat: 13.5970,
+        lng: 100.7520
+    },
+    // Samut Sakhon
+    {
+        id: 'samut-sakhon',
+        name: { th: 'นิคมฯ สมุทรสาคร', la: 'ນິຄົມ ສະໝຸດສາຄອນ' },
+        region: 'Samut Sakhon',
+        workers: 650,
+        clients: 13,
+        lat: 13.5470,
+        lng: 100.2740
+    },
+    {
+        id: 'omnoi',
+        name: { th: 'นิคมฯ อ้อมน้อย สมุทรสาคร', la: 'ນິຄົມ ອ້ອມນ້ອຍ ສະໝຸດສາຄອນ' },
+        region: 'Samut Sakhon',
+        workers: 420,
+        clients: 8,
+        lat: 13.7140,
+        lng: 100.2350
+    },
+    // EEC Region
     {
         id: 'amata-city',
         name: { th: 'อมตะซิตี้ ชลบุรี', la: 'ອະມະຕະຊິຕີ້ ຊົນບຸລີ' },
         region: 'EEC',
         workers: 850,
         clients: 12,
-        position: { x: 78, y: 55 } // East
-    },
-    {
-        id: 'rojana',
-        name: { th: 'นิคมฯ โรจนะ อยุธยา', la: 'ນິຄົມ ໂຣຈະນະ ອະຍຸດທະຍາ' },
-        region: 'Central',
-        workers: 620,
-        clients: 8,
-        position: { x: 55, y: 38 } // Central-North
-    },
-    {
-        id: 'wellgrow',
-        name: { th: 'เวลโกรว์ ฉะเชิงเทรา', la: 'ເວລໂກຣວ ສະເຊີງເຊົາ' },
-        region: 'EEC',
-        workers: 480,
-        clients: 6,
-        position: { x: 72, y: 48 } // East
-    },
-    {
-        id: 'bangpu',
-        name: { th: 'นิคมฯ บางปู สมุทรปราการ', la: 'ນິຄົມ ບາງປູ ສະໝຸດປຣາການ' },
-        region: 'Bangkok',
-        workers: 720,
-        clients: 15,
-        position: { x: 58, y: 52 } // Bangkok area
-    },
-    {
-        id: 'nava-nakorn',
-        name: { th: 'นวนคร ปทุมธานี', la: 'ນະວະນະຄອນ ປະທຸມທານີ' },
-        region: 'Central',
-        workers: 550,
-        clients: 10,
-        position: { x: 52, y: 42 } // North of Bangkok
+        lat: 13.2958,
+        lng: 101.1248
     },
     {
         id: 'amata-rayong',
@@ -53,51 +80,74 @@ const INDUSTRIAL_ESTATES = [
         region: 'EEC',
         workers: 680,
         clients: 9,
-        position: { x: 82, y: 58 } // Rayong
+        lat: 12.9236,
+        lng: 101.2925
     },
     {
         id: 'eastern-seaboard',
         name: { th: 'อีสเทิร์นซีบอร์ด ระยอง', la: 'ອີສເທີນຊີບອດ ຣະຍອງ' },
         region: 'EEC',
-        workers: 420,
+        workers: 520,
         clients: 7,
-        position: { x: 85, y: 62 } // Rayong coast
+        lat: 12.7697,
+        lng: 101.1449
+    },
+    // Central
+    {
+        id: 'rojana',
+        name: { th: 'นิคมฯ โรจนะ อยุธยา', la: 'ນິຄົມ ໂຣຈະນະ ອະຍຸດທະຍາ' },
+        region: 'Central',
+        workers: 620,
+        clients: 8,
+        lat: 14.2078,
+        lng: 100.6275
     },
     {
-        id: 'gateway-city',
-        name: { th: 'เกตเวย์ซิตี้ ฉะเชิงเทรา', la: 'ເກດເວຊິຕີ້ ສະເຊີງເຊົາ' },
-        region: 'EEC',
-        workers: 380,
-        clients: 5,
-        position: { x: 75, y: 50 }
+        id: 'nava-nakorn',
+        name: { th: 'นวนคร ปทุมธานี', la: 'ນະວະນະຄອນ ປະທຸມທານີ' },
+        region: 'Central',
+        workers: 550,
+        clients: 10,
+        lat: 14.1055,
+        lng: 100.6048
     },
     {
-        id: 'saha-rattana',
-        name: { th: 'สหรัตนนคร ชลบุรี', la: 'ສະຫະຣັດຕະນະນະຄອນ ຊົນບຸລີ' },
+        id: 'wellgrow',
+        name: { th: 'เวลโกรว์ ฉะเชิงเทรา', la: 'ເວລໂກຣວ ສະເຊີງເຊົາ' },
         region: 'EEC',
-        workers: 290,
-        clients: 4,
-        position: { x: 80, y: 52 }
-    },
-    {
-        id: 'pinthong',
-        name: { th: 'ปิ่นทอง ชลบุรี', la: 'ປີ່ນທອງ ຊົນບຸລີ' },
-        region: 'EEC',
-        workers: 350,
+        workers: 480,
         clients: 6,
-        position: { x: 76, y: 56 }
+        lat: 13.5670,
+        lng: 101.0170
     }
 ]
 
 export function CoverageMapSection() {
     const locale = useLocale() as 'th' | 'la'
     const [selectedEstate, setSelectedEstate] = useState<string | null>(null)
-    const [hoveredEstate, setHoveredEstate] = useState<string | null>(null)
+    const [isMapLoaded, setIsMapLoaded] = useState(false)
 
     const totalWorkers = INDUSTRIAL_ESTATES.reduce((sum, e) => sum + e.workers, 0)
     const totalClients = INDUSTRIAL_ESTATES.reduce((sum, e) => sum + e.clients, 0)
 
     const selectedData = INDUSTRIAL_ESTATES.find(e => e.id === selectedEstate)
+    const regions = ['Samut Prakan', 'Samut Sakhon', 'EEC', 'Central']
+
+    // Load Leaflet CSS
+    useEffect(() => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
+        document.head.appendChild(link)
+        setIsMapLoaded(true)
+
+        return () => {
+            document.head.removeChild(link)
+        }
+    }, [])
+
+    // Thailand center coordinates
+    const thailandCenter: [number, number] = [13.5, 100.7]
 
     return (
         <section className="py-24 bg-gradient-to-b from-slate-900 to-slate-800 text-white overflow-hidden" id="coverage">
@@ -110,7 +160,7 @@ export function CoverageMapSection() {
                     className="text-center mb-16"
                 >
                     <div className="inline-flex items-center gap-2 bg-blue-500/20 text-blue-300 px-4 py-2 rounded-full text-sm font-medium mb-4">
-                        <MapPin className="w-4 h-4" />
+                        <Navigation className="w-4 h-4" />
                         Strategic Coverage
                     </div>
                     <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -118,106 +168,66 @@ export function CoverageMapSection() {
                     </h2>
                     <p className="text-slate-400 max-w-2xl mx-auto">
                         {locale === 'th'
-                            ? 'V-GROUP ให้บริการครอบคลุมนิคมอุตสาหกรรมหลักทั่วประเทศไทย พร้อมส่งมอบแรงงานถึงที่ รวดเร็ว ทันใจ'
+                            ? 'V-GROUP ให้บริการครอบคลุมนิคมอุตสาหกรรมหลักทั่วประเทศไทย รวมถึงสมุทรปราการ สมุทรสาคร และเขต EEC'
                             : 'V-GROUP ໃຫ້ບໍລິການຄວບຄຸມນິຄົມອຸດສາຫະກຳຫຼັກທົ່ວປະເທດໄທ'
                         }
                     </p>
                 </motion.div>
 
-                <div className="grid lg:grid-cols-2 gap-12 items-center">
-                    {/* Map */}
+                <div className="grid lg:grid-cols-2 gap-12 items-start">
+                    {/* Interactive Map */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                         className="relative"
                     >
-                        {/* SVG Map Container */}
-                        <div className="relative aspect-[4/5] bg-slate-800/50 rounded-3xl border border-slate-700 p-8">
-                            {/* Thailand outline (simplified) */}
-                            <svg
-                                viewBox="0 0 100 120"
-                                className="w-full h-full"
-                                style={{ filter: 'drop-shadow(0 0 20px rgba(59, 130, 246, 0.2))' }}
-                            >
-                                {/* Simplified Thailand shape */}
-                                <path
-                                    d="M45,5 L55,5 L60,15 L65,25 L70,30 L75,35 L80,45 L85,55 L90,65 L85,75 L80,85 L75,95 L70,105 L60,110 L55,115 L50,110 L45,105 L40,100 L35,90 L30,80 L25,70 L20,60 L25,50 L30,40 L35,30 L40,20 Z"
-                                    fill="rgba(59, 130, 246, 0.1)"
-                                    stroke="rgba(59, 130, 246, 0.3)"
-                                    strokeWidth="0.5"
-                                />
-
-                                {/* Bangkok/EEC highlight area */}
-                                <ellipse
-                                    cx="70"
-                                    cy="55"
-                                    rx="20"
-                                    ry="15"
-                                    fill="rgba(34, 211, 238, 0.1)"
-                                    stroke="rgba(34, 211, 238, 0.3)"
-                                    strokeWidth="0.5"
-                                    strokeDasharray="2,2"
-                                />
-                                <text x="70" y="70" fontSize="3" fill="rgba(34, 211, 238, 0.6)" textAnchor="middle">EEC Zone</text>
-                            </svg>
-
-                            {/* Estate Markers */}
-                            {INDUSTRIAL_ESTATES.map((estate) => (
-                                <motion.button
-                                    key={estate.id}
-                                    className={`absolute transform -translate-x-1/2 -translate-y-1/2 z-10 transition-all ${selectedEstate === estate.id || hoveredEstate === estate.id
-                                            ? 'scale-150'
-                                            : 'scale-100'
-                                        }`}
-                                    style={{
-                                        left: `${estate.position.x}%`,
-                                        top: `${estate.position.y}%`
-                                    }}
-                                    onClick={() => setSelectedEstate(estate.id === selectedEstate ? null : estate.id)}
-                                    onMouseEnter={() => setHoveredEstate(estate.id)}
-                                    onMouseLeave={() => setHoveredEstate(null)}
-                                    whileHover={{ scale: 1.5 }}
-                                    whileTap={{ scale: 1.2 }}
+                        <div className="relative bg-slate-800/50 rounded-3xl border border-slate-700 overflow-hidden h-[500px]">
+                            {isMapLoaded && typeof window !== 'undefined' && (
+                                <MapContainer
+                                    center={thailandCenter}
+                                    zoom={8}
+                                    style={{ height: '100%', width: '100%' }}
+                                    scrollWheelZoom={false}
                                 >
-                                    <div className={`w-4 h-4 rounded-full ${selectedEstate === estate.id
-                                            ? 'bg-cyan-400 shadow-lg shadow-cyan-400/50'
-                                            : 'bg-blue-500 shadow-md shadow-blue-500/30'
-                                        }`}>
-                                        <div className="absolute inset-0 rounded-full bg-blue-400 animate-ping opacity-30" />
-                                    </div>
-                                </motion.button>
-                            ))}
-
-                            {/* Hover Tooltip */}
-                            <AnimatePresence>
-                                {hoveredEstate && !selectedEstate && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 5 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: 5 }}
-                                        className="absolute bg-slate-700 text-white text-xs px-3 py-2 rounded-lg shadow-lg pointer-events-none z-20"
-                                        style={{
-                                            left: `${INDUSTRIAL_ESTATES.find(e => e.id === hoveredEstate)?.position.x}%`,
-                                            top: `${(INDUSTRIAL_ESTATES.find(e => e.id === hoveredEstate)?.position.y || 0) - 8}%`,
-                                            transform: 'translateX(-50%)'
-                                        }}
-                                    >
-                                        {INDUSTRIAL_ESTATES.find(e => e.id === hoveredEstate)?.name[locale]}
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                                    <TileLayer
+                                        attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+                                        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                                    />
+                                    {INDUSTRIAL_ESTATES.map((estate) => (
+                                        <Marker
+                                            key={estate.id}
+                                            position={[estate.lat, estate.lng]}
+                                            eventHandlers={{
+                                                click: () => setSelectedEstate(estate.id)
+                                            }}
+                                        >
+                                            <Popup>
+                                                <div className="text-slate-900 p-1">
+                                                    <h4 className="font-bold text-sm">{estate.name[locale]}</h4>
+                                                    <p className="text-xs text-slate-600">{estate.region}</p>
+                                                    <div className="flex gap-4 mt-2 text-xs">
+                                                        <span><strong>{estate.workers}</strong> {locale === 'th' ? 'คน' : 'ຄົນ'}</span>
+                                                        <span><strong>{estate.clients}</strong> {locale === 'th' ? 'บริษัท' : 'ບໍລິສັດ'}</span>
+                                                    </div>
+                                                </div>
+                                            </Popup>
+                                        </Marker>
+                                    ))}
+                                </MapContainer>
+                            )}
+                            {!isMapLoaded && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-slate-800">
+                                    <div className="text-slate-400">Loading map...</div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Legend */}
-                        <div className="flex items-center justify-center gap-6 mt-6 text-sm text-slate-400">
+                        <div className="flex flex-wrap items-center justify-center gap-4 mt-6 text-sm text-slate-400">
                             <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 rounded-full bg-blue-500" />
-                                <span>{locale === 'th' ? 'นิคมอุตสาหกรรม' : 'ນິຄົມອຸດສາຫະກຳ'}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 rounded-full bg-cyan-400" />
-                                <span>{locale === 'th' ? 'เลือกอยู่' : 'ເລືອກຢູ່'}</span>
+                                <MapPin className="w-4 h-4 text-blue-400" />
+                                <span>{locale === 'th' ? 'คลิกที่หมุดเพื่อดูรายละเอียด' : 'ຄລິກທີ່ໝຸດເພື່ອເບິ່ງລາຍລະອຽດ'}</span>
                             </div>
                         </div>
                     </motion.div>
@@ -255,7 +265,7 @@ export function CoverageMapSection() {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -20 }}
-                                    className="bg-gradient-to-br from-blue-600/20 to-cyan-600/20 rounded-2xl p-6 border border-cyan-500/30"
+                                    className="bg-gradient-to-br from-blue-600/20 to-cyan-600/20 rounded-2xl p-6 border border-cyan-500/30 mb-6"
                                 >
                                     <div className="flex items-center gap-3 mb-4">
                                         <div className="w-10 h-10 rounded-xl bg-cyan-500 flex items-center justify-center">
@@ -263,7 +273,7 @@ export function CoverageMapSection() {
                                         </div>
                                         <div>
                                             <h3 className="font-bold text-lg">{selectedData.name[locale]}</h3>
-                                            <span className="text-xs text-cyan-400">{selectedData.region} Region</span>
+                                            <span className="text-xs text-cyan-400">{selectedData.region}</span>
                                         </div>
                                     </div>
 
@@ -289,34 +299,54 @@ export function CoverageMapSection() {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="bg-slate-800/30 rounded-2xl p-8 border border-slate-700 text-center"
+                                    className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700 text-center mb-6"
                                 >
-                                    <MapPin className="w-12 h-12 mx-auto mb-4 text-slate-600" />
-                                    <p className="text-slate-500">
+                                    <MapPin className="w-10 h-10 mx-auto mb-3 text-slate-600" />
+                                    <p className="text-slate-500 text-sm">
                                         {locale === 'th'
-                                            ? 'คลิกที่จุดบนแผนที่เพื่อดูรายละเอียด'
-                                            : 'ຄລິກທີ່ຈຸດເທິງແຜນທີ່ເພື່ອເບິ່ງລາຍລະອຽດ'
+                                            ? 'เลือกนิคมจากแผนที่หรือรายการด้านล่าง'
+                                            : 'ເລືອກນິຄົມຈາກແຜນທີ່ຫຼືລາຍການດ້ານລຸ່ມ'
                                         }
                                     </p>
                                 </motion.div>
                             )}
                         </AnimatePresence>
 
-                        {/* Estate List */}
-                        <div className="mt-6 max-h-[200px] overflow-y-auto pr-2 space-y-2">
-                            {INDUSTRIAL_ESTATES.map((estate) => (
-                                <button
-                                    key={estate.id}
-                                    onClick={() => setSelectedEstate(estate.id === selectedEstate ? null : estate.id)}
-                                    className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all ${selectedEstate === estate.id
-                                            ? 'bg-cyan-500/20 border border-cyan-500/30'
-                                            : 'bg-slate-800/30 border border-slate-700 hover:bg-slate-700/50'
-                                        }`}
-                                >
-                                    <span className="text-sm">{estate.name[locale]}</span>
-                                    <span className="text-xs text-slate-400">{estate.workers} {locale === 'th' ? 'คน' : 'ຄົນ'}</span>
-                                </button>
-                            ))}
+                        {/* Grouped Estate List */}
+                        <div className="space-y-4 max-h-[280px] overflow-y-auto pr-2">
+                            {regions.map(region => {
+                                const regionEstates = INDUSTRIAL_ESTATES.filter(e => e.region === region)
+                                if (regionEstates.length === 0) return null
+
+                                return (
+                                    <div key={region}>
+                                        <h4 className={`text-xs font-bold uppercase tracking-wider mb-2 ${region === 'Samut Prakan' || region === 'Samut Sakhon'
+                                                ? 'text-amber-400'
+                                                : 'text-blue-400'
+                                            }`}>
+                                            {region === 'Samut Prakan' ? (locale === 'th' ? '📍 สมุทรปราการ' : '📍 ສະໝຸດປຣາການ') :
+                                                region === 'Samut Sakhon' ? (locale === 'th' ? '📍 สมุทรสาคร' : '📍 ສະໝຸດສາຄອນ') :
+                                                    region === 'EEC' ? '📍 EEC (Eastern Economic Corridor)' :
+                                                        (locale === 'th' ? '📍 ภาคกลาง' : '📍 ພາກກາງ')}
+                                        </h4>
+                                        <div className="space-y-1">
+                                            {regionEstates.map(estate => (
+                                                <button
+                                                    key={estate.id}
+                                                    onClick={() => setSelectedEstate(estate.id === selectedEstate ? null : estate.id)}
+                                                    className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all text-sm ${selectedEstate === estate.id
+                                                            ? 'bg-cyan-500/20 border border-cyan-500/30'
+                                                            : 'bg-slate-800/30 border border-slate-700 hover:bg-slate-700/50'
+                                                        }`}
+                                                >
+                                                    <span>{estate.name[locale]}</span>
+                                                    <span className="text-xs text-slate-400">{estate.workers} {locale === 'th' ? 'คน' : 'ຄົນ'}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )
+                            })}
                         </div>
                     </motion.div>
                 </div>
