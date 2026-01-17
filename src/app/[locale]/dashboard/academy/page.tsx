@@ -326,8 +326,95 @@ export default async function AcademyPage() {
                             </Link>
                         </CardContent>
                     </Card>
+
+                    {/* Training Materials */}
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-base flex items-center gap-2">
+                                <BookOpen className="h-4 w-4" />
+                                สื่อการสอน
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                            <div className="flex items-center justify-between text-sm p-2 bg-blue-50 rounded">
+                                <span>📘 คู่มือความปลอดภัย</span>
+                                <Badge variant="outline">Thai</Badge>
+                            </div>
+                            <div className="flex items-center justify-between text-sm p-2 bg-green-50 rounded">
+                                <span>📗 ทักษะพื้นฐาน</span>
+                                <Badge variant="outline">Lao</Badge>
+                            </div>
+                            <div className="flex items-center justify-between text-sm p-2 bg-purple-50 rounded">
+                                <span>📕 กฎหมายแรงงาน</span>
+                                <Badge variant="outline">Thai</Badge>
+                            </div>
+                            <div className="flex items-center justify-between text-sm p-2 bg-amber-50 rounded">
+                                <span>📙 ภาษาไทยเบื้องต้น</span>
+                                <Badge variant="outline">Lao</Badge>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
+
+            {/* Training Schedule */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Calendar className="h-5 w-5" />
+                        ตารางการฝึกอบรม (ประจำวัน)
+                    </CardTitle>
+                    <CardDescription>โปรแกรมการฝึกอบรมมาตรฐาน 14 วัน</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="p-4 border rounded-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm font-bold text-blue-600">1-3</span>
+                                <span className="font-medium">สัปดาห์ที่ 1</span>
+                            </div>
+                            <ul className="text-sm text-muted-foreground space-y-1">
+                                <li>• ปฐมนิเทศ</li>
+                                <li>• กฎหมายแรงงาน</li>
+                                <li>• ความปลอดภัย</li>
+                            </ul>
+                        </div>
+                        <div className="p-4 border rounded-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-sm font-bold text-green-600">4-7</span>
+                                <span className="font-medium">สัปดาห์ที่ 2</span>
+                            </div>
+                            <ul className="text-sm text-muted-foreground space-y-1">
+                                <li>• ทักษะพื้นฐาน</li>
+                                <li>• ภาษาไทย</li>
+                                <li>• การสื่อสาร</li>
+                            </ul>
+                        </div>
+                        <div className="p-4 border rounded-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-sm font-bold text-purple-600">8-11</span>
+                                <span className="font-medium">ภาคปฏิบัติ</span>
+                            </div>
+                            <ul className="text-sm text-muted-foreground space-y-1">
+                                <li>• ฝึกงานจริง</li>
+                                <li>• เครื่องมือ</li>
+                                <li>• กระบวนการ</li>
+                            </ul>
+                        </div>
+                        <div className="p-4 border rounded-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-sm font-bold text-amber-600">12-14</span>
+                                <span className="font-medium">ประเมินผล</span>
+                            </div>
+                            <ul className="text-sm text-muted-foreground space-y-1">
+                                <li>• สอบข้อเขียน</li>
+                                <li>• สอบปฏิบัติ</li>
+                                <li>• มอบใบรับรอง</li>
+                            </ul>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     )
 }
