@@ -22,14 +22,14 @@ export function CmsSidebar({ locale }: CmsSidebarProps) {
     const pathname = usePathname()
 
     const menuItems = [
-        { href: `/admin/cms`, icon: LayoutDashboard, label: 'Dashboard', labelLA: 'ແດດບອດ' },
-        { href: `/admin/cms/pages`, icon: FileText, label: 'Pages', labelLA: 'ໜ້າເວັບ' },
-        { href: `/admin/cms/blog`, icon: Newspaper, label: 'Blog', labelLA: 'ບົດຄວາມ' },
-        { href: `/admin/cms/media`, icon: Image, label: 'Media', labelLA: 'ສື່' },
-        { href: `/admin/cms/faq`, icon: HelpCircle, label: 'FAQ', labelLA: 'ຄຳຖາມ' },
-        { href: `/admin/cms/partners`, icon: Users, label: 'Partners', labelLA: 'ພາດເນີ' },
-        { href: `/admin/cms/estates`, icon: Factory, label: 'Estates', labelLA: 'ນິຄົມ' },
-        { href: `/admin/cms/settings`, icon: Settings, label: 'Settings', labelLA: 'ຕັ້ງຄ່າ' },
+        { href: `/admin/cms`, icon: LayoutDashboard, labelTH: 'แดชบอร์ด', labelLA: 'ແດດບອດ' },
+        { href: `/admin/cms/pages`, icon: FileText, labelTH: 'หน้าเว็บ', labelLA: 'ໜ້າເວັບ' },
+        { href: `/admin/cms/blog`, icon: Newspaper, labelTH: 'บทความ', labelLA: 'ບົດຄວາມ' },
+        { href: `/admin/cms/media`, icon: Image, labelTH: 'สื่อ/รูปภาพ', labelLA: 'ສື່' },
+        { href: `/admin/cms/faq`, icon: HelpCircle, labelTH: 'คำถามที่พบบ่อย', labelLA: 'ຄຳຖາມ' },
+        { href: `/admin/cms/partners`, icon: Users, labelTH: 'พาร์ทเนอร์', labelLA: 'ພາດເນີ' },
+        { href: `/admin/cms/estates`, icon: Factory, labelTH: 'นิคมอุตสาหกรรม', labelLA: 'ນິຄົມ' },
+        { href: `/admin/cms/settings`, icon: Settings, labelTH: 'ตั้งค่า', labelLA: 'ຕັ້ງຄ່າ' },
     ]
 
     const isActive = (href: string) => {
@@ -38,6 +38,10 @@ export function CmsSidebar({ locale }: CmsSidebarProps) {
             return pathname === fullPath
         }
         return pathname.startsWith(fullPath)
+    }
+
+    const getLabel = (item: typeof menuItems[0]) => {
+        return locale === 'la' ? item.labelLA : item.labelTH
     }
 
     return (
@@ -50,7 +54,9 @@ export function CmsSidebar({ locale }: CmsSidebarProps) {
                     </div>
                     <div>
                         <h1 className="font-bold text-lg">V-CMS</h1>
-                        <p className="text-xs text-slate-400">Content Management</p>
+                        <p className="text-xs text-slate-400">
+                            {locale === 'la' ? 'ຈັດການເນື້ອຫາ' : 'จัดการเนื้อหา'}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -62,12 +68,12 @@ export function CmsSidebar({ locale }: CmsSidebarProps) {
                         key={item.href}
                         href={item.href}
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive(item.href)
-                                ? 'bg-cyan-500/20 text-cyan-400 border-l-4 border-cyan-400'
-                                : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+                            ? 'bg-cyan-500/20 text-cyan-400 border-l-4 border-cyan-400'
+                            : 'hover:bg-slate-800 text-slate-300 hover:text-white'
                             }`}
                     >
                         <item.icon className="w-5 h-5" />
-                        <span>{locale === 'la' ? item.labelLA : item.label}</span>
+                        <span>{getLabel(item)}</span>
                     </Link>
                 ))}
             </nav>
@@ -79,9 +85,10 @@ export function CmsSidebar({ locale }: CmsSidebarProps) {
                     className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all"
                 >
                     <ArrowLeft className="w-5 h-5" />
-                    <span>{locale === 'la' ? 'ກັບໄປ ERP' : 'Back to ERP'}</span>
+                    <span>{locale === 'la' ? 'ກັບໄປ ERP' : 'กลับไป ERP'}</span>
                 </Link>
             </div>
         </aside>
     )
 }
+
